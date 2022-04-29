@@ -1,3 +1,231 @@
+= 基本的な DAO
+
+これは https://github.com/dfinity/ic[Internet Computer] 上にデプロイされている基本的な DAO https://en.wikipedia.org/wiki/Decentralized_autonomous_organization[( Decentralized Autonomous Organization )] のサンプルプロジェクトのデモです。
+ 基本的な DAO のサンプルコードは https://github.com/dfinity/examples/tree/master/motoko/basic_dao[Motoko] と https://github.com/dfinity/examples/tree/master/rust/basic_dao[Rust] で見ることが出来ます。
+
+== 概要
+
+`basic_dao` は Principal ID とトークン数をマッピングしたアカウントセットで初期化することができます。
+アカウントのオーナーは `account_balance` を呼び出してアカウント残高を照会したり、 `transfer` を呼び出してトークンを他のアカウントに転送することができます。誰でもすべてのアカウントを閲覧するために `list_accounts`  を呼び出すことができます。
+
+アカウントのオーナーは `submit_proposal` を呼び出してプロポーザルを提出することができます。プロポーザルでは、Canister、メソッド、およびこのメソッドの引数を指定します。アカウントのオーナーは `vote` を呼び出すことで、提案に対して ( `Yes` か `No` のどちらかの) 票を投じることができます。
+投票数はそのアカウントのオーナーが持っているトークン数と同じです。もし十分な数の `Yes` 票が投じられたら `basic_dao` は、指定された Canister 、与えられた引数、指定されたメソッドを呼び出すことでその提案を実行します。もし `No` の票数が多く投じられた場合、提案は実行されず、代わりに `Rejected` として登録されます。
+
+あるプロポーザルを可決するために必要な `Yes` の票数などの特定のシステムパラメータを `get_system_params` で問い合わせることができます。これらのシステムパラメータはプロポーザルプロセスを通じて変更することができます。つまり、プロポーザルは `update_system_params` で更新された値を呼び出すようにすることができます。以下のデモはまさにそれを行っています。
+
+詳しくは https://github.com/dfinity/examples/blob/master/rust/basic_dao/src/basic_dao/src/basic_dao.did[ Canister のサービス定義] をご覧ください。
+
+// == Prerequisites
+
+// Verify the following before running this demo:
+
+// * You have installed the Rust toolchain (e.g. cargo)
+
+// * You have installed [didc](https://github.com/dfinity/candid/tree/master/tools/didc)
+
+// * You have downloaded and installed the [DFINITY Canister
+//    SDK](https://smartcontracts.org).
+
+// * You have stopped any Internet Computer or other network process that would
+//    create a port conflict on 8000.
+
+// == Demo
+
+// 1. Build the `basic_dao` canister.
+
+// [source,bash]
+// ----
+// make clean; make
+// ----
+// +
+// 2. Start a local internet computer.
+
+// [source,bash]
+// ----
+// dfx start
+// ----
+
+// 3. Open a new terminal window.
+   
+// 4. Create test identities
+
+// [source,bash]
+// ----
+// dfx identity new Alice; dfx identity use Alice; export ALICE=$(dfx identity get-principal); 
+// dfx identity new Bob; dfx identity use Bob; export BOB=$(dfx identity get-principal); 
+// ----
+
+// 5. Deploy `basic_dao` with initial accounts.
+
+// [source,bash]
+// ----
+// dfx deploy --argument "(record {
+//     accounts = vec { record { owner = principal \"$ALICE\"; tokens = record { amount_e8s = 100_000_000:nat64 }; }; 
+//                      record { owner = principal \"$BOB\"; tokens = record { amount_e8s = 100_000_000:nat64 };}; };
+//     proposals = vec {};
+//     system_params = record {
+//         transfer_fee = record { amount_e8s = 10_000:nat64 };
+//         proposal_vote_threshold = record { amount_e8s = 10_000_000:nat64 };
+//         proposal_submission_deposit = record { amount_e8s = 10_000:nat64 };
+//     };
+//    })"
+// ----
+
+// 6. List accounts and confirm you see 2 accounts
+
+// [source,bash]
+// ----
+// dfx canister call basic_dao list_accounts '()'
+// ----
+
+// 7. Call `account_balance` as `Bob`.
+
+// [source,bash]
+// ----
+// dfx canister call basic_dao account_balance '()'
+// ----
+//    You should see as output:
+
+// ....
+//    (record { amount_e8s = 100_000_000 : nat64 })
+// ....
+   
+// 8. Transfer tokens to `Alice`:
+
+// [source,bash]
+// ----
+// dfx canister call basic_dao transfer "(record { to = principal \"$ALICE\"; amount = record { amount_e8s = 90_000_000:nat64;};})";
+// ----
+// Output:
+// ....
+//    (variant { Ok })
+// ....
+
+// 9. List accounts and see that the transfer was made:
+
+// [source,bash]
+// ----
+//    $ dfx canister call basic_dao list_accounts '()'
+// ----
+// Output:
+// ....
+//     (
+//       vec {
+//         record {
+//           owner = principal "$ALICE";
+//           tokens = record { amount_e8s = 190_000_000 : nat64 };
+//         };
+//         record {
+//           owner = principal "$BOB";
+//           tokens = record { amount_e8s = 9_990_000 : nat64 };
+//         };
+//       },
+//     )
+// ....
+// Note that the transfer fee was deducted from Bob's account
+   
+// 10. Let's make a proposal to change the transfer fee. We can call `get_system_params` to learn the current transfer fee:
+// [source,bash]
+// ----
+// dfx canister call basic_dao get_system_params '()';
+// ----
+// Output:
+// ....
+//    (
+//      record {
+//        transfer_fee = record { amount_e8s = 10_000 : nat64 };
+//        proposal_vote_threshold = record { amount_e8s = 10_000_000 : nat64 };
+//        proposal_submission_deposit = record { amount_e8s = 10_000 : nat64 };
+//      },
+//    )
+// ....
+// To change `transfer_fee`, we need to submit a proposal by calling `submit_proposal`, which takes a `ProposalPayload` as an arg:
+// [source,bash]
+// ----
+//    type ProposalPayload = record {
+//      canister_id: principal;
+//      method: text;
+//      message: blob;
+//    };
+// ----
+   
+// We can change `transfer_fee` by calling basic_dao's `update_system_params` method. This method takes a `UpdateSystemParamsPayload` as an arg, which we need to encode into a `blob` to use in `ProposalPayload`.
+// Use `didc` to encode a `UpdateSystemParamsPayload`:
+
+// [source,bash]
+// ----
+// didc encode '(record { transfer_fee = opt record { amount_e8s = 20_000:nat64; }; })' -f blob
+// ----
+// Output:
+// ....
+//    blob "DIDL\03l\01\f2\c7\94\ae\03\01n\02l\01\b9\ef\93\80\08x\01\00\01 N\00\00\00\00\00\00"
+// ....
+// We can then submit the proposal:
+// [source,bash]
+// ----
+//    $ dfx canister call basic_dao submit_proposal '(record { canister_id = principal "rrkah-fqaaa-aaaaa-aaaaq-cai";
+//    method = "update_system_params":text;
+//    message = blob "DIDL\03l\01\f2\c7\94\ae\03\01n\02l\01\b9\ef\93\80\08x\01\00\01 N\00\00\00\00\00\00"; })'
+// ----
+// Note the output proposal ID:
+// ....
+//    (variant { Ok = 0 : nat64 })
+// ....
+// Confirm the proposal was created:
+// [source,bash]
+// ----
+// dfx canister call basic_dao get_proposal '(0:nat64)'
+// ----
+// You should see `state = variant { Open };` in the output.
+
+// Vote on the proposal:
+// [source,bash]
+// ----
+// dfx canister call basic_dao vote '(record { proposal_id = 0:nat64; vote = variant { Yes };})'
+// ----
+// You should see the following output:
+// ....
+//    (variant { Ok = variant { Open } })
+// ....
+// Because we voted as `Bob`, and `Bob` does not have enough voting power to pass proposals, the proposal remains `Open`.
+// To get the proposal accepted, we can vote with `Alice`:
+// [source,bash]
+// ----
+// dfx identity use Alice; dfx canister call basic_dao vote '(record { proposal_id = 0:nat64; vote = variant { Yes };})';
+// ----
+// You should see the following output:
+// ....
+//    (variant { Ok = variant { Accepted } })
+// ....
+
+// Query the proposal again:
+// [source,bash]
+// ----
+// dfx canister call basic_dao get_proposal '(0:nat64)'
+// ----
+// And see that the state is `Succeeded`:
+// ....
+//    state = variant { Succeeded };
+// ....
+// Query the system params again and see that `transfer_fee` has been updated:
+// [source,bash]
+// ----
+// dfx canister call basic_dao get_system_params '()'
+// ----
+// Output:
+// ....
+//    (
+//      record {
+//        transfer_fee = record { amount_e8s = 20_000 : nat64 };
+//        proposal_vote_threshold = record { amount_e8s = 10_000_000 : nat64 };
+//        proposal_submission_deposit = record { amount_e8s = 10_000 : nat64 };
+//      },
+//    )
+// ....
+   
+
+
+////
 = Basic Dao
 
 This sample project demonstrates a basic DAO 
@@ -229,4 +457,8 @@ View the https://github.com/dfinity/examples/blob/master/rust/basic_dao/src/basi
 //      },
 //    )
 // ....
-   
+
+
+
+////
+
