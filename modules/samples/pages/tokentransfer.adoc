@@ -1,8 +1,8 @@
 = トークン転送 のサンプルコード
 
-トークン転送は自分のアカウントから他のアカウントにトークンを転送することができる Canister で可能になります。Ledger Canister を使用した例で示しており、金融統合や Defi Dapp を作りたいときに便利です。サンプルコードは https://github.com/dfinity/examples/tree/master/motoko/ledger-transfer[Motoko] と https://github.com/dfinity/examples/tree/master/rust/tokens_transfer[Rust] で公開されています。
+Token Transfer（トークン転送）は自分のアカウントから他のアカウントにトークンを転送することができる Canister です。Ledger Canister を使用した例であり、金融統合や Defi Dapp を作りたいときに便利です。サンプルコードは https://github.com/dfinity/examples/tree/master/motoko/ledger-transfer[Motoko] と https://github.com/dfinity/examples/tree/master/rust/tokens_transfer[Rust] で公開されています。
 
-このサンプルコードは、転送トークン数やトークンを転送先アカウント（オプションでサブアカウントも可能）を入力に取り、また（転送に）必要なトークンがない場合などにトークン転送の Canister に成否を返すような、（トークン転送 Canister の）ひとつの中核をなす `ledger_transfer` 関数を中心に据えています。成功した場合、トランザクションの一意な識別子が返されます。この識別子は、Ledger のトランザクションの memo に保存されます。
+このサンプルコードは、転送トークン数や転送先アカウント（オプションでサブアカウントも可能）を入力に取り、また転送に必要なトークンがない場合などに Canister に成否を返すような、`ledger_transfer` 関数を中心に据えています。成功した場合、トランザクションの一意な識別子が返されます。この識別子は、Ledger のトランザクションの memo に保存されます。
 
 // This example demonstrates an application that transfer ICPs to its most active users.
 
