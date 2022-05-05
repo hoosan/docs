@@ -1,4 +1,4 @@
-# Encrypted Notes （暗号化されたノート）
+# 暗号化されたノート（Encrypted Notes）
 
 link:https://github.com/dfinity/examples/tree/master/motoko/encrypted-notes-dapp[ Encrypted Notes ]は、短いテキスト形式で秘密の情報を作成・保存する試験的なアプリケーションです。ユーザーは link:https://smartcontracts.org/docs/ic-identity-guide/what-is-ic-identity.html[ Internet Identity ]で認証された、自動的に同期される複数のデバイスから自分のノートにアクセスすることができます。アプリのフロントエンドがエンドツーエンドで暗号化するため、ユーザーはアプリのバックエンドを信頼する必要がありません。
 
@@ -6,7 +6,7 @@ link:https://github.com/dfinity/examples/tree/master/motoko/encrypted-notes-dapp
 
 ## アイディア
 
-純粋に IC 上で動作する簡素な（しかし簡素しすぎていない）アプリケーションの例を作りたいと思います。この例は IC の _ウェブ配信機能_ と _ストレージ機能_ に依存しています。このアプリの例で次の2つの主要な機能に焦点を当てます。(1)クライアントサイドでの _エンドツーエンドの暗号化_ 、(2) _マルチユーザー_ 、 _マルチデバイス_ のサポート。
+純粋に IC 上で動作する簡素な（しかし簡素すぎない）アプリケーションの例を示したいと思います。この例は IC の _ウェブ配信機能_ と _ストレージ機能_ に依存しています。このアプリの例で次の2つの主要な機能に焦点を当てます。(1)クライアントサイドでの _エンドツーエンドの暗号化_ 、(2) _マルチユーザー_ 、 _マルチデバイス_ のサポート。
 
 このようなアプリの開発プラットフォームとしての IC の可能性を示すために、2種類の Canister Development Kits ( CDKs )を用いて実装を行いました。Motoko CDK はlink:https://smartcontracts.org/docs/language-guide/motoko.html[ Motoko ] 言語を使って Actor ベースの Dapp を実装するためのものです。Rust CDK はlink:https://smartcontracts.org/docs/rust-guide/rust-intro.html[ Rust ] 言語で実装されたアプリを提供します。いずれも Canister を WebAssembly ファイルにコンパイルし、 IC 上にデプロイします。
 
@@ -18,9 +18,9 @@ Encrypted Notes の基本機能は2つの主要コンポーネントで構成さ
 
 第二に、クライアントサイドでノートの内容のエンドツーエンドの暗号化を可能にしました。これは、link:https://github.com/timohanke/icvault[ IC-Vault ]という別の既存のアプリからソリューションを借用したものです。私たちの Encrypted Notes アプリは IC-Vault のアプローチを踏襲し、複数のデバイスの管理をサポートしています。
 
-このドキュメントで論じる Canister の文脈では、デバイスは必ずしも独立した物理デバイスではなく論理的なインスタンスデバイスです。つまり、独自のローカルデータストレージを持つ Web ブラウザなどです。例えば、同じノートパソコン上で動作する2つの Web ブラウザを独立した2つのデバイスと見なし、これらのブラウザは独自の暗号鍵を生成する。これに対し、II Canister はハードウェアが生成する暗号鍵に依存し、ハードウェアデバイスのみを識別します。
+このドキュメントで論じる Canister の文脈では、デバイスは必ずしも独立した物理デバイスではなく論理的なインスタンスデバイスです。つまり、独自のローカルデータストレージを持つ Web ブラウザなどです。例えば、同じノートパソコン上で動作する2つの Web ブラウザを独立した2つのデバイスと見なし、これらのブラウザは独自の暗号鍵を生成します。これに対し、II Canister はハードウェアが生成する暗号鍵に依存し、ハードウェアデバイスのみを識別します。
 
-ユーザーごとに複数のデバイスをサポートするために、IC-Vault はデバイスマネージャーとユーザーに結びついたすべてのデバイス間でデバイス固有の鍵を安全に同期させる Canister を採用します。このドキュメントの残りの部分では、メイン Canister の一部として同様の方法でデバイスマネージャーを実装している Encrypted Notes Canister に焦点を当てます。
+ユーザーごとに複数のデバイスをサポートするために、IC-Vault はデバイスマネージャーとユーザーに結びついたすべてのデバイス間でデバイス固有の鍵を安全に同期させる Canister を採用しています。このドキュメントの残りの部分では、メイン Canister の一部として同様の方法でデバイスマネージャーを実装している Encrypted Notes Canister に焦点を当てます。
 
 詳細やユーザーストーリーは link:https://github.com/dfinity/examples/blob/master/motoko/encrypted-notes-dapp/README.md[ README ファイル] を参照して下さい。
 
@@ -30,21 +30,19 @@ image:encrypted-notes-arch.png[High-level architecture overview diagram of the E
 
 * ユーザーはフロントエンドで II にリンクされ、APIクエリやアップデートを呼び出すために使用できる Principal を取得します。
 * 内部的には、`Principal → [Notes]` という形式のマップと、`counter` を格納しています。
-* `counter` という形式のマップを保存します。
 * `counter` には、Canister が作成した（すべての Principal にわたる）ノートの数が格納されます。
-* `create` メソッド Principal のエントリに追加します (存在する場合)。
-または、 `note_id == counter` が指定された Principal をマップに追加し、 `counter` をインクリメントします。
-* メソッド `update` は、呼び出し元の Principal と与えられた `note_id` のノートを取り出し、与えられた `text` で置き換えます （この `text` はフロントエンドによって暗号化されていると仮定します）。
-* メソッド `delete` は、与えられた `note_id` を持つノートをマップから探し出し削除します。ノート ID が常にグローバルに一意であることを保証するために、 `counter` を減少させないようにします。
+* `create` メソッドは、Principal のエントリがすでに存在する場合にはそのエントリに、そうでなければ Principal を新たにマップに追加し、`note_id == counter` であるノートを追加した後に、`counter` をインクリメントします。
+* `update` メソッドは、呼び出し元の Principal と指定された `note_id` に対応するノートを取り出し、与えられた `text` で置き換えます （この `text` はフロントエンドによって暗号化されていると仮定します）。
+* `delete`  メソッドは、指定された `note_id` を持つノートをマップから探し出し削除します。ノート ID が常にグローバルに一意であることを保証するために、 `counter` を減少させないようにします。
 
 ## 暗号化
 
-* ノートの暗号化は完全にクライアントサイドで行われます。しかし、この例のアプリは、悪意のあるノードプロバイダによるデータ漏洩の可能性がある攻撃からはまだ保護されていません。例えば、攻撃者は特定のユーザーが何冊のノートを持っているか、ユーザーの活動統計などを推論することができます。したがって、このアプリのコードやパターンを使用する前に、link:https://github.com/dfinity/examples/blob/master/motoko/encrypted-notes-dapp/README.md#disclaimer-please-read-carefully[免責条項]をよく読んでください。
-* この（ドキュメントの）定義では、デバイスは必ずしも独立した物理デバイスではなく、単に独立したローカルストレージを持つ web ブラウザのインスタンスであることを思い出してください。
+* ノートの暗号化は完全にクライアントサイドで行われます。しかし、このサンプルアプリは、悪意のあるノードプロバイダによるデータ漏洩攻撃の可能性からはまだ保護されていません。例えば、攻撃者は特定のユーザーが何冊のノートを持っているかや、ユーザーの活動統計などを推論することができます。したがって、このアプリのコードやパターンを使用する前に、link:https://github.com/dfinity/examples/blob/master/motoko/encrypted-notes-dapp/README.md#disclaimer-please-read-carefully[免責条項]をよく読んでください。
+* このアプリの定義では、デバイスは必ずしも独立した物理デバイスではなく、単に独立したローカルストレージを持つ web ブラウザのインスタンスであることを思い出してください。
 * Dapp は３種類の違う鍵を利用します。
-** 対称型（アルゴリズム） AES-GCM  _秘密鍵_ ： 指定された Principal のノートを暗号化するために使用されます。Principal のノートはこの秘密鍵で暗号化されて Encrypted notes Canister に保存されます。したがって、アプリのフロントエンドはこのユーザーからのノートを復号したり、 Encrypted Notes Canister に暗号化したノートを格納するためにこの秘密鍵を知っている必要があります。
-** デバイス RSA-OAEP _公開鍵_ ： Principal の対称型 AES _秘密鍵_ を暗号化するために使用されます。暗号化された秘密鍵は Principal に登録された各デバイスのための Canister に格納されます。そのデバイスを使用する Principal が異なると同じ鍵が使用されます。
-** デバイス RSA-OAEP _秘密鍵_ ：特定の Principal の Encrypted notes Canister に格納されている対称型 AES _秘密鍵_ を復号するために使用されます。フロントエンドが秘密鍵を復号すると、 Encrypted Notes Canister に保存されているノートを復号するためにこの鍵を使用することができます。
+** 対称型 AES-GCM  _秘密鍵_ ： 指定された Principal のノートを暗号化するために使用されます。Principal のノートはこの秘密鍵で暗号化されて Encrypted notes Canister に保存されます。したがって、アプリのフロントエンドはこのユーザーのノートを復号したり、 Encrypted Notes Canister に暗号化したノートを格納するためにこの秘密鍵を知っている必要があります。
+** デバイス RSA-OAEP _公開鍵_ ： Principal の対称型 AES _秘密鍵_ を暗号化するために使用されます。暗号化された秘密鍵は  Principal に登録されたデバイスそれぞれに対して Canister に格納されます。そのデバイスを使用する Principal が異なると同じ鍵が使用されます。
+** デバイス RSA-OAEP _秘密鍵_ ：Encrypted notes Canister に格納されている、指定された Principal の対称型 AES _秘密鍵_ を復号するために使用されます。フロントエンドが秘密鍵を復号すると、 Encrypted Notes Canister に保存されているノートを復号するためにこの鍵を使用することができます。
 * フォームのマップを保存します。
 
     Principal → (DeviceAlias → PublicKey,
@@ -52,10 +50,10 @@ image:encrypted-notes-arch.png[High-level architecture overview diagram of the E
 
 * このマップは次に説明するように、ユーザーデバイスを管理するために使用されます。
 * デバイスを登録するために、フロントエンドはデバイス・エイリアス、公開鍵、秘密鍵（ローカルストレージに保持）を生成します。
-* デバイスを追加。
+* デバイスを追加すると、以下が行われます。
 ** *デバイスの登録：* この ID がすでに登録されていると、このデバイスの `alias` と `publickey` だけが Encrypted Notes Canister に追加されます。
-** *デバイスの同期：* 同期していないデバイスがこの II のすべての同期していないデバイスのリストを取得すると、各同期していないデバイスの公開鍵で対称型 AES _秘密鍵_ を暗号化します。その後、同期していないデバイスは暗号化された対称型 AES _秘密鍵_ を取得して復号し、それを使って Encrypted Notes Canister に保存されている既存のノートを復号します。
-* II での一度の認証。
+** *デバイスの同期：* 同期していないデバイスがこの II のすべての同期していないデバイスのリストを取得すると、同期していないデバイスのそれぞれの公開鍵で対称型 AES _秘密鍵_ を暗号化します。その後、同期していないデバイスは暗号化された対称型 AES _秘密鍵_ を取得して復号し、それを使って Encrypted Notes Canister に保存されている既存のノートを復号します。
+* 一度 II で認証すると、以下が行われます。
 ** この ID が未登録の場合、フロントエンドは対称型 AES _秘密鍵_ を生成し、それを自身の公開鍵で暗号化します。そして `seed(publickey, ciphertext)` を呼び出し、その暗号文とそれに関連する `publickey` をマップに追加します。
 ** ユーザーが後続のデバイスを登録したい場合、フロントエンドは `register_device` を呼び出して、そのデバイスの `alias` と `publickey` を渡します。次に、フロントエンドは登録する必要があるすべてのデバイスに対して `submit_ciphertexts([publickey, ciphertext])` を呼び出します。これにより、登録されたデバイスはユーザーノートを暗号・復号化するための AES 鍵を復号し引き出すことができるようになります。
 
