@@ -1,3 +1,57 @@
+= 1. ツールのインストール
+
+Hello, World! のチュートリアルを完了するには Canister SDK 、Node.js 、および Node パッケージマネージャをインストールする必要があります。
+
+== 1.1 Canister SDK （別名 "*dfx*" ）
+
+IC 上で開発するために使用する Canister SDK は `dfx` と呼ばれ、DFINITY foundation によってメンテナンスされており Motoko で書かれています。他にも SDK があります。
+
+インストールするには以下のコマンドを実行します。
+[source,bash]
+----
+sh -ci "$(curl -fsSL https://smartcontracts.org/install.sh)"
+----
+
+正確にインストールされたか確認するには以下を実行します。
+[source,bash]
+----
+dfx --version
+----
+
+ターミナルには以下のようになるはずです（バージョンは最低でも0.9.2）。
+
+image:quickstart/dfx-version.png[dfx version]
+
+// === Backwards Incompatibility
+
+// If you have previously created IC dapps before February 2022, you may need to do a clean start to complete tutorial. You can delete the SDK and associated profiles and re-install it. **Be sure to save your previous identities if they control dapps or ICP.** 
+
+// Follow the instructions here: link:../developers-guide/install-upgrade-remove{outfilesuffix}[Install, upgrade, or remove software].
+
+== 1.2 Node.js
+
+Node.js はフロントエンドのアセットをレンダリングするために必要なのでこのチュートリアルを完了させるために必要です。しかし、一般的な Canister の開発には Node.js は必要ありません。
+
+12以上の Node.js のすべての stable version（ LTS ）をサポートしています。12、14、16のいずれかをインストールすることができます。Node 17は  Webpack の api プロキシツールをサポートしていないため、 `npm start` が正しく動作しない可能性があることに注意してください。
+
+Node.js のインストール方法は link:https://nodejs.org/en/download[nodejs.orgのサイト] からなどいろいろな方法があるようです。
+
+Node.jsのインストールに加えて、ユーザーは以下をインストールする必要があります。
+
+* Node Package Manager (NPM) （これは Node に同梱されていますが `npm i -g npm` でアップグレードするとよいでしょう。）
+* Node Version Manager (NVM) link:https://github.com/nvm-sh/nvm#installing-and-updating[NVM インストール] を参照してください。
+* NVMを入手したら `nvm install —lts` で最新の stable build をインストールします。
+
+次に進む準備が出来ました。
+
+== 結論
+
+これで SDK が正しくインストールされました。
+
+本題のチュートリアルに進みます。 link:quickstart-intro{outfilesuffix}[quickstart イントロダクション] をご覧ください。
+
+
+////
 = 1. Installing Tools
 
 To complete the Hello, World! tutorial you need to install the canister SDK, Node.js and the Node package manager.
@@ -48,3 +102,7 @@ You are now ready to continue.
 You now have the SDK properly installed. 
 
 Continue with the main tutorial: link:quickstart-intro{outfilesuffix}[quickstart intro].
+
+
+////
+
