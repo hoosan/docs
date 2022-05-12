@@ -30,17 +30,17 @@ image:quickstart/dfx-version.png[dfx version]
 
 == 1.2 Node.js
 
-Node.js はフロントエンドのアセットをレンダリングするために必要なのでこのチュートリアルを完了させるために必要です。しかし、一般的な Canister の開発には Node.js は必要ありません。
+Node.js はフロントエンドのアセットをレンダリングするために必要なのでこのチュートリアルを完了させるために必要です。しかし、一般的には Canister の開発に Node.js は必須ではありません。
 
-12以上の Node.js のすべての stable version（ LTS ）をサポートしています。12、14、16のいずれかをインストールすることができます。Node 17は  Webpack の api プロキシツールをサポートしていないため、 `npm start` が正しく動作しない可能性があることに注意してください。
+12以上の Node.js のすべての安定バージョンをサポートしています。12、14、16のいずれかをインストールすることができます。Node 17は  Webpack の api プロキシツールをサポートしていないため、 `npm start` が正しく動作しない可能性があることに注意してください。
 
-Node.js のインストール方法は link:https://nodejs.org/en/download[nodejs.orgのサイト] からなどいろいろな方法があるようです。
+Node.js のインストール方法は link:https://nodejs.org/en/download[nodejs.orgのサイト] からなどいろいろな方法があります。
 
 Node.jsのインストールに加えて、ユーザーは以下をインストールする必要があります。
 
 * Node Package Manager (NPM) （これは Node に同梱されていますが `npm i -g npm` でアップグレードするとよいでしょう。）
 * Node Version Manager (NVM) link:https://github.com/nvm-sh/nvm#installing-and-updating[NVM インストール] を参照してください。
-* NVMを入手したら `nvm install —lts` で最新の stable build をインストールします。
+* NVMを入手したら `nvm install —lts` で最新の安定版をインストールします。
 
 次に進む準備が出来ました。
 
