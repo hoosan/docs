@@ -4,7 +4,7 @@ SDKには Motoko でバックエンドを、HTML 、CSS 、JS でフロントエ
 
 `dfx new hello` コマンドはテンプレートコードを使用して、新しいプロジェクトディレクトリ `hello` とテンプレートファイル、そしてプロジェクトのための新しい `hello` Git リポジトリを作成します。異なる名前で異なるプロジェクトを作成することができます。
 
-これは Web2 において、Rail の `rails new` や React.js の `create-react-app` Rust の `cargo new` とほぼ同じようなものです。
+これは Web2 における Rail の `rails new` 、React.js の `create-react-app` 、Rust の `cargo new` とほぼ同じようなものです。
 
 最初のアプリケーションのための新しいプロジェクトを作成するには以下の手順で行います。
 
@@ -40,7 +40,7 @@ image:quickstart/cd-hello.png[cd new]
 
 image:quickstart/2-canisters-hello-dapp.png[hello Dapp]
 
-なぜ Canister が2つあるのか、と思われるかもしれません。これらの Canister はあなたのプロジェクトを組織するために作成されたものです。アセットとバックエンドロジックを1つの Canister に入れることもできますが、IC 開発者は2つの Canister （バックエンド用とフロントエンド用）を作成するほうが便利だと考えています。
+なぜ Canister が2つあるのか、と思われるかもしれません。これらの Canister はあなたのプロジェクトを整理する助けになるように作成されたものです。アセットとバックエンドロジックを1つの Canister に入れることもできますが、IC の開発者は2つの Canister （バックエンド用とフロントエンド用）を作成するほうが便利だと考えています。
 
 == 結論
 
