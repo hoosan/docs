@@ -1,3 +1,56 @@
+= 2. Dapp プロジェクト作成（作業時間：約１分）
+
+SDKには Motoko でバックエンドを、HTML 、CSS 、JS でフロントエンドを構成したスターター・デフォルトプロジェクトが付属しています。開発者はこのデフォルトプロジェクトを使用して、独自の Dapp を開始することができます。このチュートリアルではこの付属のプロジェクトをビルドしてデプロイしますので、他の Dapp コードをダウンロードする必要はありません。
+
+`dfx new hello` コマンドはテンプレートコードを使用して、新しいプロジェクトディレクトリ `hello` とテンプレートファイル、そしてプロジェクトのための新しい `hello` Git リポジトリを作成します。異なる名前で異なるプロジェクトを作成することができます。
+
+これは Web2 において、Rail の `rails new` や React.js の `create-react-app` Rust の `cargo new` とほぼ同じようなものです。
+
+最初のアプリケーションのための新しいプロジェクトを作成するには以下の手順で行います。
+
+== 2.1 ターミナルを開き、"hello “ という名前で新しいプロジェクトを作成します。
+
+[source,bash]
+----
+dfx new hello
+----
+
+// Your terminal should look like this:
+
+// image:quickstart/dfx-new-hello-1.png[dfx new]
+
+// image:quickstart/dfx-new-hello-2.png[dfx new]
+
+== 2.2 プロジェクトディレクトリに移動します。
+[source,bash]
+----
+cd hello
+----
+
+ディレクトリは以下のようになっているはずです。
+
+image:quickstart/cd-hello.png[cd new]
+
+== 2.3 Dapp プロジェクトを理解する
+
+`Hello` Dapp プロジェクトは2つの Canister で構成されています。
+
+* `hello` Canister はテンプレートとしてバックエンドロジックが格納されています。
+* `hello_assets` Canister は Dapp のアセット（画像、html ファイルなど）が格納されています。
+
+image:quickstart/2-canisters-hello-dapp.png[hello Dapp]
+
+なぜ Canister が2つあるのか、と思われるかもしれません。これらの Canister はあなたのプロジェクトを組織するために作成されたものです。アセットとバックエンドロジックを1つの Canister に入れることもできますが、IC 開発者は2つの Canister （バックエンド用とフロントエンド用）を作成するほうが便利だと考えています。
+
+== 結論
+
+これでローカルにデプロイできるデフォルトのプロジェクトが作成されました。
+
+本題のチュートリアルに進みます。 link:quickstart-intro{outfilesuffix}[quickstart イントロダクション] をご覧ください。
+
+
+
+////
 = 2. Create a Dapp Project (1 min)
 
 The SDK comes with a starter default project that has a backend in Motoko and frontend code in HTML, CSS, and JS. Developers can use this default project to start their own dapps. In this tutorial, we will build and deploy this bundled project, so there is no need to download any other dapp code.
@@ -47,3 +100,7 @@ You may wonder "why two canisters?" These canisters are created for you to help 
 You now have the default project created ready to be deployed locally. 
 
 Continue with the main tutorial: link:quickstart-intro{outfilesuffix}[quickstart intro].
+
+
+
+////
