@@ -1,3 +1,171 @@
+= 3. Hello Dappのローカルマシンへのデプロイ（作業時間：約３分）
+
+`hello` プロジェクトが作成されましたので、次のステップはこれをローカル環境にデプロイします。ローカル環境にデプロイするために、 `dfx` は実行環境のローカルインスタンスを開始することができます。この環境は完全な IC レプリカではなく、IC レプリカのステートをダウンロードするものでもありません。Dapp をデプロイするために特別に設計された軽量な環境です。
+
+このために開発者は２つのターミナルを開く必要があります。
+
+* *ターミナルウィンドゥ  タブ A ：* 
+
+** 実行環境のローカルインスタンスを表示します。
+** Web2 プロジェクトで開発者がローカルサーバを起動するのに似ています（例：Node.js の Express、Python の Django、Ruby の Rails など）。
+
+* *ターミナルウィンドゥ  タブ B ：* 
+
+** 実行環境のローカルインスタンスに *メッセージ* を送信するために使用されます。
+** 開発者がローカルで動作しているサーバーに HTTP API メッセージを送る方法に似ています（例： Postman、Panic ）。
+
+このチュートリアルではわかりやすくするために、両ウィンドゥを配色で区別して説明します。
+
+=== ターミナル A
+
+image:quickstart/dfx-new-hello-2.png[dfx new]
+
+
+=== ターミナル B
+
+image:quickstart/terminal-b-ls.png[terminal b ls]
+
+== 3.1 実行環境のローカルインスタンスを起動する（ターミナル A ）
+
+必要であればプロジェクトのルートディレクトリに移動してください。このチュートリアルでは `hello` フォルダにいるはずです。これは上記のセクション 2 で作成したプロジェクトの名前だからです。
+
+ターミナル A でローカル Canister の実行環境を起動します。
+
+[source,bash]
+----
+dfx start
+----
+
+image:quickstart/terminal-a-dfx-start.png[dfx start]
+
+
+注意： 
+
+* ご使用のプラットフォームやローカルのセキュリティ設定により、警告が表示される場合があります。受信ネットワーク接続の許可または拒否を求めるプロンプトが表示された場合、"許可 "をクリックします。
+
+* 実行されている他のネットワークプロセスがことがないこと、ポートのコンフリクトがないことを確認し、8000のポートを作成します。
+
+*おめでとうございます。 これであなたのマシン上でICの実行環境のローカルインスタンスが動作します。このウィンドゥ タブを開いたままにしておいてください。* ウィンドゥタブを閉じると、IC の実行環境のローカルインスタンスが実行されなくなり、このチュートリアルの続きができなくなります。
+
+== 3.2 “hello" Dapp をローカルにデプロイする（ターミナル B ）
+
+注意：これはローカルへのデプロイなのでこのセクションはメインネットへのデプロイ（ link:developers-guide/concepts/tokens-cycles[Cycle] が必要）よりもステップが少なくなっています。
+
+最初の Dapp をローカルにデプロイするには以下の手順です：
+
+
+=== 3.2.1 必要に応じてまだプロジェクトのルートディレクトリにいることを確認する。
+
+必要に応じて以下のコマンドを実行して、プロジェクトディレクトリに Node モジュールがあることを確認します（何度実行しても問題ありません）。
+
+[source,bash]
+----
+npm install
+----
+
+image:quickstart/terminal-b-npm-install.png[npm install]
+
+=== 3.2.2 Dapp の登録、ビルド、デプロイをする：
+
+[source,bash]
+----
+dfx deploy
+----
+
+image:quickstart/terminal-b-dfx-deploy.png[dfx deploy]
+
+以下のコピーでわかるように、あなたの Dapp は2つの Canister で構成されています（ターミナル B から）：
+
+[source, bash]
+----
+Installing code for canister hello, with canister_id rrkah-fqaaa-aaaaa-aaaaq-cai
+Installing code for canister hello_assets, with canister_id ryjl3-tyaaa-aaaaa-aaaba-cai
+----
+
+a. `hello` Canister ：バックエンドロジックを含む `rrkah-fqaaa-aaaaq-cai`
+
+b.  `hello_assets` Canister ：フロントエンドのアセット（例： HTML、JS、CSS ）が格納されている `yjl3-tyaaa-aaaaaba-cai`
+
+== 3.3 コマンドラインでローカルの Dapp をテストする（ターミナル B ）
+
+Canister がローカル・レプリカにデプロイされたので、メッセージを送信することができます。Canister にはパラメータとして文字列を受け取る `greet` というメソッドがあるのでメッセージを送信してみましょう。
+
+[source,bash]
+----
+dfx canister call hello greet everyone
+----
+
+* `dfx canister call` コマンドでは Canister 名と呼び出すメソッド （または関数）を指定する必要があります。
+* `hello` は呼び出したい *Canister* の名前です。
+* `greet` は `hello` Canister の中で呼び出したい *function* の名前です。
+* `everyone` は `greet` 関数に渡したいテキストデータ型の引数です。
+
+== 3.4 ブラウザでローカルの Dappをテストする
+
+Dapp がデプロイされコマンドラインで動作確認ができたところで、Web ブラウザを使ってフロントエンドにアクセスできることを確認しましょう。
+
+=== 3.4.1 ターミナル B で開発用サーバを起動する：
+
+[source,bash]
+----
+npm start
+----
+
+=== 3.4.2 ブラウザでローカルの Dappをテストする。
+
+ローカルで動作している Dapp をブラウザの +http://localhost:8080+ で確認します。
+
+image:front-end-prompt.png[Sample HTML page]
+
+. Input a name, then click *Click Me* to return a greeting.
+. 名前を入力し、*Click Me* をクリックすると greet の値を返します。
++
+例：
++
+image:front-end-result.png[Hello, everyone! greeting]
+
+== 3.5 ローカル Canister の実行環境を停止する
+
+ブラウザでアプリケーションをテストした後、ローカル Canister の実行環境を停止して、バックグラウンドで実行し続けないようにします。オンチェーンでのデプロイにはこの実行環境は必要ありません。
+
+ローカルのデプロイを停止するには以下の手順です：
+
+. ターミナル A で Control-C を押して、ローカルネットワークの処理を中断します。
+
+. ターミナル B で Control-C を押して、開発サーバーのプロセスを中断します。
+
+. ローカルコンピュータ上で動作しているローカル Canister 実行環境を停止します：
+
++
+[source,bash]
+----
+dfx stop
+----
+
+== 結論
+
+ローカルにデプロイしたアプリをテストしました。オンチェーンにデプロイするための Cycle を取得する準備ができました。
+
+本題のチュートリアルに進みます。 link:quickstart-intro{outfilesuffix}[quickstart イントロダクション] をご覧ください。
+
+== トラブルシューティング
+
+=== Node.js が正しくインストールされていない
+
+ブラウザでアプリが表示されない場合、Node.js がインストールされていない可能性があります。インストールされていることを確認してください。
+
+=== dfxを過去にインストールした場合
+
+2022年2月以前に IC Dapps を作成したことがある場合、クリーンインストールが必要な場合があります。SDK と関連するプロファイルを削除して再インストールしてください。link:../developers-guide/install-upgrade-remove{outfilesuffix}[インストール、アップグレード、ソフトウェア削除] にある手順で行ってください。
+
+[source,bash]
+----
+node --version
+----
+
+
+
+////
 = 3. Deploying the Hello Dapp on Local Machine (3 min)
 
 Now that your `hello` project is created, the next step is to deploy it locally. To deploy locally, `dfx` can start a local instance of the execution environment. This environment is not a full IC replica, nor does it download any of the state of an IC replica. It is a lightweight environment designed exlcusively for deploying dapps.
@@ -158,3 +326,7 @@ If you have previously created IC dapps before February 2022, you may need to do
 ----
 node --version
 ----
+
+
+
+////
