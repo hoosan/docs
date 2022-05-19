@@ -1,3 +1,90 @@
+= 4. オンチェーンデプロイのための Cycle 取得（作業時間：約5分）
+
+== 4.1 Cycle の紹介
+
+IC Dapp がオンチェーンで動作するためには演算とストレージの代金として Cycle が必要です。開発者は Cycle を獲得し、Canister に充填する必要があります。Cycle は ICP トークンから生成されます。
+
+このフローは、ホスティングプロバイダーにクレジットカードを追加してアプリをデプロイし、後で課金される Web2 ソフトウェアに慣れている人々には驚くべきことかもしれません。Web3 ではブロックチェーンはスマートコントラクトが （ Ethereum のガスであれ、IC の Cycle であれ） *なにか* を消費することを要求されます。このステップは暗号やブロックチェーンの関係者にはおなじみのものでしょうが、 Dapp デプロイの最初のステップでなぜ "トークンを取りに行く "なのか、新規参入者が混乱するところかもしれません。
+
+ICP トークンのみでなぜ Dapp を走らせないのでしょうか。Cycle という新しい構造をなぜ作るのでしょうか。ICP トークンのコストは暗号市場によって大きく変動しますが、Cycle は link:https://en.wikipedia.org/wiki/Special_drawing_rights[SDR] にペッグされる予測可能で比較的安定したトークンです。1兆 Cycle は ICP の価格に関係なく常に1 SDR のコストがかかります。
+
+Cycle に関する実用的な注意点：
+
+* 新規開発者は無料の15兆 Cycleを link:cycles-faucet{outfilesuffix}[Cycle のフォーセット（無料）] で貰えます。
+
+* Canister を配置するには1000億 Cycle が必要ですが、十分な Cycle で Canister をロードするために `dfx` はどの Canister を作成しても3兆 Cycle を注入します（変更可能なパラメータです）。
+
+* 演算コストとストレージコストの一覧表は link:../developers-guide/computation-and-storage-costs{outfilesuffix}[コンピューティング・ストレージコスト] でご覧になれます。
+
+* ICP の取得と管理については link:https://wiki.internetcomputer.org/wiki/Managing_ICP_holdings[Acquiring and managing ICP tokens] で詳しく説明されています。
+
+このチュートリアルでは Cycle を取得する2つの方法を紹介します：
+
+* **オプション1：** セクション **4.3** では Cycle のフォーセットから Cycle を取得する方法を紹介しています（新規開発者に最も一般的な方法です）。
+* **オプション2：** セクション **4.4** では ICP トークンを使って Cycle を取得する方法を紹介しています（より多くの Cycle を求める開発者に最も一般的です）。
+
+このセクションが終わるころには Canister は3つになっていることでしょう：
+
+* `hello` Canister（まだ IC にデプロイされていない）
+* プロジェクトの `hello_assets` Canister（まだ IC にデプロイされていない）
+*  Cycle wallet Canister（ IC にデプロイされている）
+
+image:quickstart/3-canisters-hello-dapp.png[hello dapp and cycles wallet]
+
+== 4.2 Internet Computer ブロックチェーンへの接続を確認する（ターミナル B）
+
+サニティーチェックとして IC への接続が安定しているかどうかを確認することは優れた実践方法です：
+
+Internet Computer のブロックチェーンの今の状態と接続状態を確認します。
+
+[source,bash]
+----
+dfx ping ic
+----
+
+成功すると次のような出力が表示されます：
+
+[source,bash]
+----
+$ {
+  "ic_api_version": "0.18.0"  "impl_hash": "d639545e0f38e075ad240fd4ec45d4eeeb11e1f67a52cdd449cd664d825e7fec"  "impl_version": "8dc1a28b4fb9605558c03121811c9af9701a6142"  "replica_health_status": "healthy"  "root_key": [48, 129, 130, 48, 29, 6, 13, 43, 6, 1, 4, 1, 130, 220, 124, 5, 3, 1, 2, 1, 6, 12, 43, 6, 1, 4, 1, 130, 220, 124, 5, 3, 2, 1, 3, 97, 0, 129, 76, 14, 110, 199, 31, 171, 88, 59, 8, 189, 129, 55, 60, 37, 92, 60, 55, 27, 46, 132, 134, 60, 152, 164, 241, 224, 139, 116, 35, 93, 20, 251, 93, 156, 12, 213, 70, 217, 104, 95, 145, 58, 12, 11, 44, 197, 52, 21, 131, 191, 75, 67, 146, 228, 103, 219, 150, 214, 91, 155, 180, 203, 113, 113, 18, 248, 71, 46, 13, 90, 77, 20, 80, 95, 253, 116, 132, 176, 18, 145, 9, 28, 95, 135, 185, 136, 131, 70, 63, 152, 9, 26, 11, 170, 174]
+}
+----
+
+== 4.3 オプション1：Cycle フォーセット（無料）による Cycle の取得 （作業時間：約2分）
+
+このオプションは最小限の時間しか投資したくない人と Cycle フォーセットを使ったことがない人に最適です（フォーセットの利用は1度のみ）。
+
+このチュートリアルでは Cycle フォーセットから `Hello` Dapp 用の無料の Cycle を取得することができます。 link:cycles-faucet{outfilesuffix}[Cycle のフォーセット（無料）] の説明に従ってください。
+
+=== 4.3.1 Cycle 残高の確認をする（ターミナル B ）
+
+Cycle フォーセットを使用した後は Cycle 残高を確認しておきましょう：
+
+[source,bash]
+----
+dfx wallet --network ic balance
+----
+
+Cycle ウォレットを使用した後にこれを実行すると約15兆 Cycle が表示されるはずです。その場合はセクション **5 オンチェーンデプロイ** にスキップしてください。
+
+Cycle が表示されない場合、チュートリアルの残りの部分、オンチェーンデプロイを実行してもうまくいきません。**4.4 オプション2：ICP トークンを Cycle に変換する** を試す必要があります。
+
+== 4.4 オプション2：ICP トークンを Cycle に変換する（作業時間：約5分）
+
+このオプションはすでに Cycle ウォレットを使い切った方や将来的に Cycle を追加するために環境を整えたい方に最適です。
+
+link:4-2-convert-ICP-to-cycles{outfilesuffix}[ICP トークンを Cycle に変換]
+
+== 結論
+
+これで Cycle を取得し Cycle ウォレットに保存しました。これで Dapp をオンチェーンにデプロイする準備が整いました。
+
+本題のチュートリアルに進みます。 link:quickstart-intro{outfilesuffix}[quickstart イントロダクション] をご覧ください。
+
+
+
+////
 = 4. Acquiring Cycles to Deploy On-chain (5 min)
 
 == 4.1 Cycles: an Introduction
@@ -81,3 +168,7 @@ link:4-2-convert-ICP-to-cycles{outfilesuffix}[Convert ICP into cycles].
 You have now acquired cycles and stored them in your cycles wallet. You are ready to deploy the dapp on-chain.
 
 Continue with the main tutorial: link:quickstart-intro{outfilesuffix}[quickstart intro].
+
+
+
+////
