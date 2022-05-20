@@ -1,3 +1,128 @@
+= 4.4 ICP トークンを Cycle に変換する（作業時間：約５分）
+
+このオプションはすでに link:developers-guide/default-wallet[Cycle ウォレット]  を使い果たしてしまった人や、将来的に link:developers-guide/concepts/tokens-cycles[Cycle] を追加するために環境をセットアップしたい人に最適なものです。
+
+== このセクションの基本的なサマリー
+
+ICP から Cycle を作成するための基本的な手順：
+
+1. トークンを `dfx` が管理する Ledger アカウントに転送する。
+2. IC Ledger に ICP トークンを Cycle に変換するよう指示する。
+
+== 4.4.1 トークンを `dfx` が管理する Ledger アカウントに転送する（ターミナル B ）
+
+最初に `dfx` をインストールすると、Ledger の `account id` を含む "developer identity" が作成されローカルに保存されます。このアカウントには `dfx` が管理する ICP トークンが保存されます。 
+
+**1. Ledger `account id` を見つけるには** 
+[source,bash]
+----
+dfx ledger account-id
+----
+
+アウトプットの例
+[source,bash]
+----
+03e3d86f29a069c6f2c5c48e01bc084e4ea18ad02b0eec8fccadf4487183c223
+----
+
+**2. トークンを Ledger の `account id` に転送する** 
+
+ICP トークンは link:https://wiki.internetcomputer.org/wiki/Managing_ICP_holdings[multiple exchanges] で取得することができます。
+
+どの取引所、ウォレット、または link:https://wiki.internetcomputer.org/wiki/ICP_custody_with_NNS_frontend_dapp[NNS Frontend Dapp] からも上記のステップ #1 の `account id` に ICP トークンを送ることで送金できます。このチュートリアルのために 2ICP を送ることをお勧めします。
+
+**3. アカウントに ICP があることを確認する**
+
+[source,bash]
+----
+dfx ledger --network ic balance
+----
+
+アカウントに ICP が存在しない場合残りのチュートリアルは動作しません。
+
+== 4.4.2 Ledger にトークンを Cycle に変換するよう指示する（ターミナル B ）
+
+確認後、`account id` に ICP トークンがあるので Ledger Canister に Cycle に変換するように指示する必要があります。
+
+[source,bash]
+----
+dfx ledger --network ic create-canister "$(dfx identity get-principal)" --amount 1.998
+----
+
+（作成のための）トランザクションが成功した場合、台帳にはそのイベントが記録され以下のような出力が表示されます。
+
+[source,bash]
+----
+Transfer sent at BlockHeight: 3054581
+Canister created with id: "gastn-uqaaa-aaaae-aaafq-cai"
+----
+
+**この Canister id は下記で必要になりますので保存します。**
+
+上記の Canister `gastn-uqaaa-aaaae-aaafq-cai` は **このチュートリアルで作成する `Hello` Dapp ではありません。** これはたった一つの目的のために作られたあなたのための Canister です。その目的は *Cycle を保持し Dapp に転送* することです。
+
+この新しい Canister を作成する理由は簡単で、設計上 Cycle は Canister の中にしか格納することができないからです。この 「Cycle を保管する Canister」 は他の用途がないため、「Cycle ウォレット」と呼ばれています。
+
+image:quickstart/1-cycles-wallet.png[Cycle wallet]
+
+上記で作成した Canister は（そのままでも Cycle を保持しますが）一般的な Canister で、「 **Cycle ウォレット**」 に必要なすべての機能があるわけではありません。そこで `dfx` を使ってすべての Cycle ウォレットの機能を保持できるようにコードを更新します。
+
+この例では、$CYCLES_WALLET_CANISTER_ID は `gastn-uqaaa-aaaae-aaafq-cai` なので以下の構造を使用することにします：
+
+[source,bash]
+----
+// This is just an example, this will only work with YOUR CYCLE WALLET principal from above
+dfx identity --network ic deploy-wallet $CYCLES_WALLET_CANISTER_ID
+----
+
+この例では、コマンドは以下のようにします：
+[source,bash]
+----
+// This is just an example, this will only work with YOUR principal
+dfx identity --network ic deploy-wallet gastn-uqaaa-aaaae-aaafq-cai
+----
+
+トランザクションが成功した場合、台帳にはそのイベントが記録され以下のような出力が表示されます。
+[source,bash]
+----
+Creating a wallet canister on the ic network.
+The wallet canister on the "ic" network for user "default" is "gastn-uqaaa-aaaae-aaafq-cai"
+----
+
+== 結論
+
+これで ICP を Cycle に変換し、Cycle ウォレットに保存できました。これで Dapp をオンチェーンにデプロイする準備が整いました。
+
+メインチュートリアルのパート 4 に進みます：ページタイトル「オンチェーンデプロイのための Cycle 取得」、リンク先は link:4-quickstart{outfilesuffix}[Cycle の取得] です。
+
+== トラブルシューティング
+
+=== dfx で Cycle が正しく設定されていることを確認する（ターミナル B ）
+
+Cycle ウォレット（ Canister ）が正しく設定され必要な Cycle の残高があることを確認します。このチュートリアルでは少なくとも3兆 Cycle （3,000,000,000,000）あることを確認するために以下を実行します。
+
+[source, bash]
+----
+dfx wallet --network ic balance
+----
+
+実行するのに十分な ICP トークンを Cycle に変換できなかった場合、次のようなコマンドを実行して Cycle ウォレットに Cycle を追加することができます：
+
+[source, bash]
+----
+dfx ledger --network ic top-up gastn-uqaaa-aaaae-aaafq-cai --amount 1.005
+----
+
+このコマンドは 4.3.2 のステップ2で作成した `gastn-uqaaa-aaaaafq-cai` Cycle ウォレットに対して追加の1.005 ICP トークンを Cycle に変換します。このコマンドは次のような出力を返します：
+
+[source, bash]
+----
+Transfer sent at BlockHeight: 81520
+Canister was topped up!
+----
+
+
+////
 = 4.4 Converting ICP Tokens into Cycles (5 min)
 
 This is option is best for people who have already exhausted the link:developers-guide/default-wallet[cycles wallet] or who want to set up their environment to add more link:developers-guide/concepts/tokens-cycles[cycles] in the future.
@@ -119,3 +244,7 @@ This command converts an additional 1.005 ICP tokens to cycles for the `gastn-uq
 ----
 Transfer sent at BlockHeight: 81520
 Canister was topped up!
+----
+
+
+////
