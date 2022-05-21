@@ -27,7 +27,7 @@ dfx ledger account-id
 
 **2. トークンを Ledger の `account id` に転送する** 
 
-ICP トークンは link:https://wiki.internetcomputer.org/wiki/Managing_ICP_holdings[multiple exchanges] で取得することができます。
+ICP トークンは link:https://wiki.internetcomputer.org/wiki/Managing_ICP_holdings[複数の取引所] で取得することができます。
 
 どの取引所、ウォレット、または link:https://wiki.internetcomputer.org/wiki/ICP_custody_with_NNS_frontend_dapp[NNS Frontend Dapp] からも上記のステップ #1 の `account id` に ICP トークンを送ることで送金できます。このチュートリアルのために 2ICP を送ることをお勧めします。
 
@@ -38,18 +38,18 @@ ICP トークンは link:https://wiki.internetcomputer.org/wiki/Managing_ICP_hol
 dfx ledger --network ic balance
 ----
 
-アカウントに ICP が存在しない場合残りのチュートリアルは動作しません。
+アカウントに ICP が存在しない場合、残りのチュートリアルは動作しません。
 
 == 4.4.2 Ledger にトークンを Cycle に変換するよう指示する（ターミナル B ）
 
-確認後、`account id` に ICP トークンがあるので Ledger Canister に Cycle に変換するように指示する必要があります。
+`account id` に ICP トークンがあることが確認できたら、Ledger Canister に Cycle に変換するように指示する必要があります。
 
 [source,bash]
 ----
 dfx ledger --network ic create-canister "$(dfx identity get-principal)" --amount 1.998
 ----
 
-（作成のための）トランザクションが成功した場合、台帳にはそのイベントが記録され以下のような出力が表示されます。
+トランザクションが成功した場合、台帳にはそのイベントが記録され以下のような出力が表示されます。
 
 [source,bash]
 ----
@@ -57,7 +57,7 @@ Transfer sent at BlockHeight: 3054581
 Canister created with id: "gastn-uqaaa-aaaae-aaafq-cai"
 ----
 
-**この Canister id は下記で必要になりますので保存します。**
+**この Canister id は後で必要になりますので保存してください。**
 
 上記の Canister `gastn-uqaaa-aaaae-aaafq-cai` は **このチュートリアルで作成する `Hello` Dapp ではありません。** これはたった一つの目的のために作られたあなたのための Canister です。その目的は *Cycle を保持し Dapp に転送* することです。
 
