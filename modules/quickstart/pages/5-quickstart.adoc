@@ -2,7 +2,7 @@
 
 == 5.1 dfx でDapp をオンチェーンにデプロイする（ターミナル B ）
 
-link:developers-guide/concepts/tokens-cycles[Cycle] と `dfx` が Cycle を転送するように設定されたので `Hello` Dapp をチェーン上にデプロイする準備ができています。
+link:developers-guide/concepts/tokens-cycles[Cycle] を手に入れ、`dfx` が Cycle を転送するように設定されたので `Hello` Dapp をチェーン上にデプロイする準備ができています。
 
 [source,bash]
 ----
@@ -14,7 +14,7 @@ npm install
 dfx deploy --network ic --with-cycles 1000000000000
 ----
 
-`--network` オプションを Dapp をデプロイするためのネットワークエイリアスまたは URL を指定します。このオプションは Internet Computer のブロックチェーンメインネットにインストールするために必要です。`--with-cycles` は明示的に `dfx` に使用する Cycle を指定します。しない場合はデフォルトの3兆 Cycle が指定されます。
+`--network` オプションを使って Dapp をデプロイするためのネットワークエイリアスまたは URL を指定します。このオプションは Internet Computer のブロックチェーンメインネットにインストールするために必要です。`--with-cycles` は明示的に `dfx` に使用する Cycle を指定します。しない場合はデフォルトの3兆 Cycle が指定されます。
 
 成功するとターミナルは以下のように出力されます：
 
@@ -53,19 +53,19 @@ URLs:
     hello: https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.ic0.app/?id=5o6tz-saaaa-aaaaa-qaacq-cai
 ----
 
-メッセージの一番下にあなたの Canister のフロントエンドがオンチェーンにデプロイされていることを確認できる URL が返されていることに注目してください：https://5h5yf-eiaaa-aaaaa-qaada-cai.ic0.app/
+メッセージの一番下に URL が返されており、ここからあなたの Canister のフロントエンドがオンチェーンにデプロイされていることを確認できます：https://5h5yf-eiaaa-aaaaa-qaada-cai.ic0.app/
 
-上記の例のように2つの Canister で構成される `Hello` という Dapp を作成しました：
+上の例では、2つの Canister で構成される `Hello` という Dapp を作成しました：
 
 a. `hello` Canister `5o6tz-saaaa-aaa-qaacq-cai`：バックエンドロジックを構成
 
 b. `hello_assets` Canister `5h5yf-eiaaa-aaa-qaada-cai`：フロントエンドのアセット（例：HTML、JS、CSS ）を構成
 
-== 5.2 ブラウザでオンチェーンのデモ用 Dapp を見てみる
+== 5.2 ブラウザを通じてオンチェーンで動作する自分の Dapp を見てみる
 
 https://5h5yf-eiaaa-aaaaa-qaada-cai.ic0.app/ に移動し、名前を入力します。
 
-Dapp がロードされる前に、ブラウザにはすぐに次のようなメッセージが表示されます：Installing "Internet Computer Validating Service Worker" この link:https://developer.chrome.com/docs/workbox/service-worker-overview/[service worker] は IC から来たもので、ユーザーが見るウェブアプリが正しく、改ざんされていないフロントエンドであることを確認するために使用されます。一度読み込まれるとブラウザはサービスワーカーをキャッシュし、ウェブアプリはより速く読み込まれるようになります。
+Dapp がロードされる前に、ブラウザにはすぐに次のようなメッセージが表示されます：Installing "Internet Computer Validating Service Worker"。この link:https://developer.chrome.com/docs/workbox/service-worker-overview/[service worker] は IC から来たもので、ユーザーが見るウェブアプリが正しく、改ざんされていないフロントエンドであることを確認するために使用されます。一度読み込まれるとブラウザはサービスワーカーをキャッシュし、ウェブアプリはより速く読み込まれるようになります。
 
 image:quickstart/service-worker.png[Hello, everyone! greeting]
 
@@ -73,9 +73,9 @@ image:quickstart/service-worker.png[Hello, everyone! greeting]
 
 image:front-end-result.png[Hello, everyone! greeting]
 
-== 5.3 コマンドライン（ターミナル B ）でオンチェーンの（デモ用） Dapp をテストする
+== 5.3 コマンドライン（ターミナル B ）でオンチェーンの Dapp をテストする
 
-Canister には `greet` というメソッド （パラメータとして文字列を受け取ります）があるので `dfx` を介してメッセージを送ることができます。
+Canister には、（パラメータとして文字列を受け取る）`greet` というメソッドがあるので 、`dfx` を介してメッセージを送ることができます。
 
 [source,bash]
 ----
@@ -86,7 +86,7 @@ dfx canister --network ic call hello greet '("everyone": text)'
 
 * `dfx canister --network ic call` は IC 上の Canister を呼び出すための設定です。
 
-* `hello greet` は `hello` という名前の Canister にメッセージを送信しその `greet` メソッドを呼び出すことを意味します。これは `hello` と Canister id のマッピングがローカルの `.dfx/local/canister_ids.json` に保存されているためです。
+* `hello greet` は `hello` という名前の Canister にメッセージを送信し、その Canister の `greet` メソッドを呼び出すことを意味します。 `hello` と Canister id のマッピングがローカルの `.dfx/local/canister_ids.json` に保存されているため、`dfx` は呼び出したい `hello` Canister が（IC 内のたくさんの Canister のうち）どれであるか分かります。
 
 * `'("everyone": text)'` は `greet` に送るパラメータです（このパラメータは `Text` だけを入力として受け取ります）。
 
@@ -118,7 +118,7 @@ dfx wallet --network ic balance
 
 == 3. ウォレット経由のプロキシを試す
 
-時々、（特に 0.9.0 より前のバージョンの `dfx` で Canister を作成した場合）あなたのウォレットが Canister のコントローラーとして設定されていることがあります。ウォレットをデプロイ指示のソースにするには、デプロイやコールコマンドに `--wallet <insert-your-wallet-id-here>` というフラグを追加してください。
+時々、（特に 0.9.0 より前のバージョンの `dfx` で Canister を作成した場合）あなたのウォレットが Canister のコントローラーとして設定されていることがあります。ウォレットをデプロイ指示の送信元にするには、デプロイやコールコマンドに `--wallet <insert-your-wallet-id-here>` というフラグを追加してください。
 
 これがうまくいって自分の Principal をCanister のコントローラーとして追加したい場合（そうすればもう `--wallet` オプションを使う必要はありません）次のように実行します：
 
