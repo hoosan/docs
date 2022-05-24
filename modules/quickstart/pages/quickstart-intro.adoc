@@ -1,3 +1,115 @@
+= クイックスタート
+=======
+= "Hello World" Dapp をデプロイする（作業時間：約10分）
+:description: Download the DFINITY Canister SDK and learn how to deploy your first application.
+:keywords: Internet Computer,blockchain,cryptocurrency,ICP tokens,smart contracts,cycles,wallet,software canister,developer onboarding
+:proglang: Motoko
+:IC: Internet Computer
+:company-id: DFINITY
+ifdef::env-github,env-browser[:outfilesuffix:.adoc]
+
+"Hello World" Dapp をInternet Computer (IC) に10 分以内でデプロイするためのクイックチュートリアルです。アプリのデプロイにはターミナルの使い方の基本的な知識が必要です。コード編集の知識は必要ありません。
+
+始める前にオンチェーンで動いているこの Dapp のバージョンを見てみましょう： https://6lqbm-ryaaa-aaaai-qibsa-cai.ic0.app/
+
+このチュートリアルでは以下の項目を学べます：
+
+1. Canister SDK をインストールする
+
+2. Dapp をローカル環境にビルドとデプロイをする
+
+3. Dappを動かすための Cycle（無料）を入手する
+
+4. Cycle ウォレットを作成しそこから他のDappsに Cycle を転送する
+
+5. Dapp のオンチェーンデプロイ
+
+このシンプルな `Hello` Dapp は、2つの（バックエンド用とフロントエンド用） link:https://wiki.internetcomputer.org/wiki/Glossary#C[Canister スマートコントラクト]  で構成されています。このアプリの機能は入力としてテキストの引数を受け取り、挨拶（greet）を返すというものです。例えば Canister SDK（Canister のインストール方法は後述）を使ってコマンドラインで `greet` メソッドを `Everyone` というテキスト引数で呼び出すと、Dapp はターミナルに `Hello, Everyone!` を返します。
+
+[source,bash]
+----
+$ dfx canister call hello greet Everyone
+$ "Hello, Everyone"
+----
+
+* Dapp をブラウザで実行すると、ポップアップウィンドウが表示され、メッセージが表示されます：`Hello, Everyone!`
+
+image:front-end-result.png[Hello, everyone! greeting]
+
+"Hello World” アプリは (IC) との対話に特化したプログラミング言語である link:language-guide/motoko[Motoko] で書かれたバックエンドコードと、webpack ベースのシンプルなフロントエンドから構成されていることに注意してください。
+
+== このチュートリアルで扱うトピック
+
+* *Canister* とは IC に搭載されたスマートコントラクトのことです。実行するコードと、実行した結果、生成されるステートが格納されています。"Hello World” アプリのように複数の Canister で構成されるのが一般的です。
+
+* *link:developers-guide/concepts/tokens-cycles[Cycle]* は一般的にプロセス、メモリ、ストレージ、ネットワーク帯域のリソースの消費量を表す単位を指します。このチュートリアルのために敢えて例えると、Cycle はイーサリアムのガスに似ています。（ガス同様に）Cycle は Dapps を動かすのに必要ですが、ガスと違って Cycle はステーブルであり、消費価格もガスほど高くありません。それぞれの Canister には リソースが消費する Cycle をチャージするための Cycle アカウントがあります。Internet Computer のユーティリティ・トークン（  ICP ）は Cycle に変換して Canister に転送することができます。ICP は常に link:https://en.wikipedia.org/wiki/Special_drawing_rights[SDR] （通貨バスケット）の対 ICP 時価で Cycle に変換することができ、1兆 Cycle が 1SDR に対応しています。**Cycle のフォーセットから無料で Cycle を入手することができます。**
+
+* A *link:developers-guide/default-wallet[Cycle ウォレット]* は Cycle を格納し Dapp 動かすための Canister です。
+
+== 1. link:1-quickstart{outfilesuffix}[ツールのインストール] 
+
+ Required tools: Canister SDK and node.js. 
+
+== 2. link:2-quickstart{outfilesuffix}[プロジェクトの作成] （作業時間：約1分）
+
+SDK をインストールしたら、2つの（バックエンドとフロントエンド）Canister を持つデフォルトの "Hello, World” プロジェクトを作成します。
+
+== 3. link:3-quickstart{outfilesuffix}[ローカル環境へのデプロイ] （作業時間：約3分）
+
+プロジェクトをローカルマシンにデプロイしてテストします。
+
+ 
+
+== 4. link:4-quickstart{outfilesuffix}[Cycle の取得] （作業時間：約5分）
+
+オンチェーンに Dapp をデプロイするための Cycle をアカウントに追加します。
+
+== 5.link:5-quickstart{outfilesuffix}[オンチェーンデプロイ] （作業時間：約1分）
+
+Cycle を使って、"Hello, World!” Dapp をオンチェーンにデプロイします。
+
+ 
+
+== 完成
+おめでとうございます！10分以内に完全にオンチェーン（バックエンドとフロントエンドの両方）の Dapp を構築しました。
+
+チュートリアルで得られたもの：
+
+* Dapp は複数の Canister でも構成可能
+* Dapp はローカルにもオンチェーンにもデプロイ可能
+* Dapp を動かすには Cycle が必要
+* Cycle ウォレットから無料の Cycle を入手可能
+* 無料の Cycle は他の Dapp を動作させるために利用可能
+
+== トラブルシューティング
+
+
+
+* もし詰まったときは link:https://forum.dfinity.org[開発者フォーラム] や link:https://discord.com/invite/cA7y6ezyE2[DISCORD] で、解決策を探したり質問を投稿したりすることができます。
+
+
+== ゼロからスタート
+
+ゼロから始める場合は SDK と関連するプロファイルを削除し、再インストールしてください。 link:../developers-guide/install-upgrade-remove{outfilesuffix}[ソフトウェアのインストール、アップグレード、削除] の手順に従ってください。
+
+**Dapp や ICP に紐づく ID は必ず保存してください。**
+
+== 次のチャレンジの用意は良いですか？
+
+DAOやNFTなどの構築など link:../samples/index{outfilesuffix}[サンプルコード] に進みましょう。
+
+== もっと学びたい人に
+
+始める前にもっと情報を知りたい、自分で試す前にデプロイ方法のデモを見たいという方は、以下の関連リソースをご覧ください：
+
+* link:../developers-guide/concepts/tokens-cycles{outfilesuffix}#using-tokens[トークンと Cycle]
+* link:https://www.youtube.com/watch?v=jduSMHxdYD8[Building on the Internet Computer: Fundamentals （ビデオ）]
+* link:https://www.youtube.com/watch?v=60uHQfoA8Dk[What is the DFINITY Canister SDK （ビデオ）]
+* link:https://www.youtube.com/watch?v=yqIoiyuGYNA[Deploying your first dapp (ビデオ）]
+
+
+
+////
 = Quick start
 =======
 = Deploy a "Hello World" Dapp in 10 Minutes
@@ -106,3 +218,7 @@ If you are looking for more information before getting started or want to view a
 * link:https://www.youtube.com/watch?v=jduSMHxdYD8[Building on the Internet Computer: Fundamentals (video)]
 * link:https://www.youtube.com/watch?v=60uHQfoA8Dk[What is the DFINITY Canister SDK (video)]
 * link:https://www.youtube.com/watch?v=yqIoiyuGYNA[Deploying your first dapp (video)]
+
+
+
+////
