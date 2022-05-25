@@ -10,7 +10,7 @@ ifdef::env-github,env-browser[:outfilesuffix:.adoc]
 
 "Hello World" Dapp をInternet Computer (IC) に10 分以内でデプロイするためのクイックチュートリアルです。アプリのデプロイにはターミナルの使い方の基本的な知識が必要です。コード編集の知識は必要ありません。
 
-始める前にオンチェーンで動いているこの Dapp のバージョンを見てみましょう： https://6lqbm-ryaaa-aaaai-qibsa-cai.ic0.app/
+始める前にこの Dapp のオンチェーンで動いているバージョンを見てみましょう： https://6lqbm-ryaaa-aaaai-qibsa-cai.ic0.app/
 
 このチュートリアルでは以下の項目を学べます：
 
@@ -44,11 +44,11 @@ image:front-end-result.png[Hello, everyone! greeting]
 
 * *link:developers-guide/concepts/tokens-cycles[Cycle]* は一般的にプロセス、メモリ、ストレージ、ネットワーク帯域のリソースの消費量を表す単位を指します。このチュートリアルのために敢えて例えると、Cycle はイーサリアムのガスに似ています。（ガス同様に）Cycle は Dapps を動かすのに必要ですが、ガスと違って Cycle はステーブルであり、消費価格もガスほど高くありません。それぞれの Canister には リソースが消費する Cycle をチャージするための Cycle アカウントがあります。Internet Computer のユーティリティ・トークン（  ICP ）は Cycle に変換して Canister に転送することができます。ICP は常に link:https://en.wikipedia.org/wiki/Special_drawing_rights[SDR] （通貨バスケット）の対 ICP 時価で Cycle に変換することができ、1兆 Cycle が 1SDR に対応しています。**Cycle のフォーセットから無料で Cycle を入手することができます。**
 
-* A *link:developers-guide/default-wallet[Cycle ウォレット]* は Cycle を格納し Dapp 動かすための Canister です。
+* *link:developers-guide/default-wallet[Cycle ウォレット]* は Cycle を格納し Dapp 動かすための Canister です。
 
 == 1. link:1-quickstart{outfilesuffix}[ツールのインストール] 
 
- Required tools: Canister SDK and node.js. 
+必要なツールは Canister SDK と node.js です。 
 
 == 2. link:2-quickstart{outfilesuffix}[プロジェクトの作成] （作業時間：約1分）
 
@@ -85,7 +85,7 @@ Cycle を使って、"Hello, World!” Dapp をオンチェーンにデプロイ
 
 
 
-* もし詰まったときは link:https://forum.dfinity.org[開発者フォーラム] や link:https://discord.com/invite/cA7y6ezyE2[DISCORD] で、解決策を探したり質問を投稿したりすることができます。
+* もし詰まったり問題にぶつかったときは、link:https://forum.dfinity.org[開発者フォーラム] や link:https://discord.com/invite/cA7y6ezyE2[DISCORD] で、解決策を探したり質問を投稿しましょう。
 
 
 == ゼロからスタート
