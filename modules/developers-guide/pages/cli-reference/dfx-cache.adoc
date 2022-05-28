@@ -1,3 +1,198 @@
+= dfx cache（キャッシュ）
+
+`+dfx cache+` コマンドとフラグ、サブコマンドを使用して `+dfx+` バージョンのキャッシュを管理することができます。
+
+`+dfx cache+` コマンドを実行するための基本的な構文は以下のとおりです：
+
+[source,bash]
+----
+dfx cache [subcommand] [flag]
+----
+
+指定する `+dfx cache+` のサブコマンドによっては、追加の引数、オプション、およびフラグが適用される場合があります。
+`+dfx cache+` コマンドを使用する際の利用情報および例を参考にして、適切なコマンドを選択してください。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|コマンド |説明
+|<<dfx cache delete,`+delete+`>> |指定されたバージョンの `+dfx+` をローカルキャッシュから削除します。
+
+|`+help+` |指定されたサブコマンドの使用情報を表示します。
+|<<dfx cache install,`+install+`>> |指定されたバージョンの `+dfx+` をローカルキャッシュからインストールします。
+
+|<<dfx cache list,`+list+`>> |現在インストールされている `+dfx+` のバージョンと、現在のプロジェクトで使用されているバージョンをリストアップします。
+
+|<<dfx cache show,`+show+`>> |`+dfx+` 実行ファイルが現在使用しているキャッシュのバージョンのパスを表示します。
+|===
+
+特定のサブコマンドの使用情報を見るには、そのサブコマンドと `+--help+` フラグを指定します。
+例えば、`+dfx cache delete+` の使用情報を見るには、以下のコマンドを実行します。
+
+[source,bash]
+----
+dfx cache delete --help
+----
+
+[[delete]]
+== dfx cache delete
+
+ローカルコンピューター上のバージョンキャッシュから指定したバージョンの `+dfx+` を削除するには、`+dfx cache delete+` コマンドを使用します。
+
+=== 基本的な利用法
+
+[source,bash]
+----
+dfx cache delete [version] [flag]
+----
+
+=== フラグ
+
+`+dfx cache delete+` コマンドでは、以下のオプションフラグを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== 引数
+
+`+dfx cache delete+` コマンドでは、以下の引数を指定できます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|コマンド|説明
+|`+version+` |ローカルキャッシュから削除する `+dfx+` のバージョンを指定します。
+|===
+
+=== 例
+
+`+dfx cache delete+` コマンドを使用すると、もう使用したくない `+dfx+` のバージョンを永久に削除することができます。
+例えば、以下のコマンドを実行すると、`+dfx+` のバージョン `+0.6.2+` を削除することができます。
+
+[source,bash]
+----
+dfx cache delete 0.6.2
+----
+
+[[install]]
+== dfx cache install
+
+`+dfx cache install+` コマンドを使用すると `+dfx+` キャッシュにある最新バージョンを `+dfx+` にインストールすることができます。
+
+=== 基本的な利用法
+
+[source,bash]
+----
+dfx cache install [flag]
+----
+
+=== フラグ
+
+`+dfx cache install+` コマンドでは、以下のオプションフラグを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== 例
+
+`+dfx cache install+` コマンドを使用すると、キャッシュのバージョンから（最新の） `+dfx+` を強制的にインストールすることができます。
+例えば、以下のコマンドを実行すると `+dfx+` がインストールされます：
+
+[source,bash]
+----
+dfx cache install
+----
+
+== dfx cache list
+
+`+dfx cache list+` コマンドを使用すると、現在インストールされていて、プロジェクトで使用されている `+dfx+` バージョンをリストアップすることができます。
+
+複数のバージョンの `+dfx+` がインストールされている場合、キャッシュリストには現在有効なバージョンを示すアスタリスク (*) が表示されます。
+
+=== 基本的な利用法
+
+[source,bash]
+----
+dfx cache list [flag]
+----
+
+=== フラグ
+
+以下のオプションフラグは `+dfx cache list+` コマンドで使用できます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== 例
+
+`+dfx cache list+` コマンドを使用すると、現在インストールされていて、プロジェクトで使用されている `+dfx+` バージョンをリストアップすることができます。
+例えば、以下のコマンドを実行すると、キャッシュにある `+dfx+` のバージョンをリストアップします：
+
+[source,bash]
+----
+dfx cache list
+----
+
+このコマンドは以下のような `+dfx+` バージョンが見つかった場合、一覧を表示します。
+
+[source,bash]
+----
+0.6.4 *
+0.6.3
+0.6.0
+----
+
+== dfx cache show
+
+`+dfx cache show+` コマンドを使用すると、現在使用している `+dfx+` バージョンのキャッシュのフルパスを表示します。
+
+=== 基本的な利用法
+
+[source,bash]
+----
+dfx cache show [flag]
+----
+
+=== フラグ
+
+以下のオプションフラグは `+dfx cache show+` コマンドで使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== 例
+
+`+dfx cache show+` コマンドを使用すると、現在使用している `+dfx+` バージョンで使用されているキャッシュのパスを表示することができます：
+
+[source,bash]
+----
+dfx cache show
+----
+
+このコマンドは現在使用している `+dfx+` バージョンで使用されているキャッシュのパスを表示します：
+
+[source,bash]
+----
+/Users/pubs/.cache/dfinity/versions/0.6.4
+----
+
+
+
+////
 = dfx cache
 
 Use the `+dfx cache+` command with flags and subcommands to manage the `+dfx+` version cache.
@@ -191,3 +386,6 @@ This command displays the path to the cache used by the `+dfx+` version you are 
 /Users/pubs/.cache/dfinity/versions/0.6.4
 ----
 
+
+
+////
