@@ -258,9 +258,9 @@ dfx canister create [option] [flag] [--all | _canister_name_]
 |===
 |引数 |説明
 |`+--all+` |複数の Canister を定義した `+dfx.json+` ファイルがプロジェクトにある場合、複数の Canister ID を一度に作成できるようにします。
-`+all+` または、個々の Canister 名を指定する必要があることに注意してください。
+`+--all+` または、個々の Canister 名を指定する必要があることに注意してください。
 |`+canister_name+` |(Canister) ID を登録する Canister の名前を指定します。
-`+all+` オプションを使用しない場合、Canister 名は必須の引数であり、プロジェクトの `+dfx.json+` 設定ファイルの `+canisters+` セクションで設定した名前と少なくとも1つは一致しなければなりません。
+`+--all+` オプションを使用しない場合、Canister 名は必須の引数であり、プロジェクトの `+dfx.json+` 設定ファイルの `+canisters+` セクションで設定した名前と少なくとも1つは一致しなければなりません。
 |===
 
 === 例
@@ -315,7 +315,7 @@ dfx canister delete [flag] [--all | _canister_name_]
 |===
 |引数 |説明
 
-|`+--all+` |`+dfx.json+` ファイルに設定されているすべての Canister を削除します。`+all+` または、個々の Canister 名を指定する必要があることに注意してください。
+|`+--all+` |`+dfx.json+` ファイルに設定されているすべての Canister を削除します。`+--all+` または、個々の Canister 名を指定する必要があることに注意してください。
 
 |`+canister_name+` |削除する Canister の名前を指定します。
 Canister 名、または `+--all+` オプションのいずれかを指定する必要があることに注意してください。
@@ -838,7 +838,7 @@ dfx canister start [flag] [--all | _canister_name_]
 |===
 |引数 |説明
 
-|`+--all+` |`+dfx.json+` ファイルで設定されているすべての Canister を起動します。`+all+` または、個々の Canister 名を指定する必要があることに注意してください。
+|`+--all+` |`+dfx.json+` ファイルで設定されているすべての Canister を起動します。`+--all+` または、個々の Canister 名を指定する必要があることに注意してください。
 
 |`+canister_name+` |起動する canister の名前を指定します。
 Canister 名、または `+--all+` オプションのいずれかを指定する必要があることに注意してください。
@@ -897,7 +897,7 @@ dfx canister status [flag] [--all | _canister_name_]
 |===
 |引数 |説明
 
-|`+--all+` |`+dfx.json+` ファイルに設定されているすべての Canister のステータス情報を返します。`+all+` または個々の Canister 名を指定する必要があることに注意してください。
+|`+--all+` |`+dfx.json+` ファイルに設定されているすべての Canister のステータス情報を返します。`+--all+` または個々の Canister 名を指定する必要があることに注意してください。
 
 |`+canister_name+` |データを返したい Canister の名前を指定します。
 Canister 名、または `+--all+` オプションのいずれかを指定する必要があることに注意してください。
@@ -958,7 +958,7 @@ dfx canister stop [flag] [--all | _canister_name_]
 |===
 |引数 |説明
 
-|`+--all+` |`+dfx.json+` ファイルで設定されているすべての Canister を停止します。`+all+` または、個々の Canister 名を指定する必要があることに注意してください。
+|`+--all+` |`+dfx.json+` ファイルで設定されているすべての Canister を停止します。`+--all+` または、個々の Canister 名を指定する必要があることに注意してください。
 
 |`+canister_name+` |停止したい Canister の名前を指定します。
 Canister 、名または `+--all+` オプションのいずれかを指定する必要があることに注意してください。
