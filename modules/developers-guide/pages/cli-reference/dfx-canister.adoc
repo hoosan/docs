@@ -484,7 +484,7 @@ dfx canister install hello_world
 
 ==== 非同期リクエストを送信する
 
-コマンドの完了を待たずに、 Canister がインストールされたかどうかのリクエストのステータスをチェックする識別子を返して、後でリクエストのステータスを確認したい場合は、次のようなコマンドを実行します：
+Canister のインストールのリクエストを行い、そのリクエストの識別子を返すことで、コマンドの完了を待つのではなく後でリクエストの状況を確認したい場合には、次のようなコマンドを実行します：
 
 [source,bash]
 ----
@@ -579,7 +579,7 @@ dfx canister request-status 0x58d08e785445dcab4ff090463b9e8b12565a67bf436251d13e
 
 `+dfx canister set-controller+` コマンドでは、{platform} 上の指定された Canister の新しい **コントローラー** として Identity 名（［訳者追加］参考： link:../cli-reference/dfx-identity{outfilesuffix}[dfx-identity] ）または Principal を指定することができます。
 コントローラーは制御対象の Canister を管理する特別な権限を持ちます。
-例えば、コントローラー（の ID ）だけがその制御下にある Canister のインストール、アップグレード、または削除をすることができます。
+例えば、コントローラー（の Identity ）だけがその制御下にある Canister のインストール、アップグレード、または削除をすることができます。
 
 コントローラーとして、ユーザー（開発者）Identity または Canister のいずれかを指定できることに注意してください。
 また、コントローラーは（ Identity の）名前、または Principal を使用して指定することもできます。
