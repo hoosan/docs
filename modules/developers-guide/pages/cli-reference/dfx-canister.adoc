@@ -693,7 +693,7 @@ dfx canister send _file_name_
 
 === フラグ
 
-`+dfx canister request-status+` コマンドでは、以下のオプションフラグはを使用することができます。
+`+dfx canister request-status+` コマンドでは、以下のオプションフラグを使用することができます。
 
 [width="100%",cols="<32%,<68%",options="header"]
 |===
@@ -750,14 +750,14 @@ dfx canister sign [flag] [option] _canister-name_ _method-name_ [argument]
 [width="100%",cols="<32%,<68%",options="header"]
 |===
 |オプション |説明
-|`+--expire-after <expire-after>+` |有効期限が切れて送信できなくなるまでの時間を指定します。秒単位で指定します。未定義の場合、デフォルトは300秒（5分）
-|`+--file <file>+` |出力ファイル名を指定する。デフォルトは `+message.json+` です。
+|`+--expire-after <expire-after>+` |有効期限が切れて送信できなくなるまでの時間を指定します。秒単位で指定します。未定義の場合、デフォルトは300秒（5分）です。
+|`+--file <file>+` |出力ファイル名を指定します。デフォルトは `+message.json+` です。
 |`+--random <random>+` |ランダムな引数を生成するための設定を指定します。
-|`+--type <type>+` |引数を用いた呼び出しを行う際に、引数のデータ型を指定する。
+|`+--type <type>+` |引数を用いた呼び出しを行う際に、引数のデータ型を指定します。
 
 デフォルトでは、データ値に対して link:../../candid-guide/candid-intro{outfilesuffix}[Candid] (`+idl+`) 構文を使用して引数を指定することができます。
 Candid の使い方やサポートされている型については link:../../candid-guide/candid-howto{outfilesuffix}#idl-syntax[Interact with a service in a terminal] とlink:../../candid-guide/candid-types{outfilesuffix}[Supported types] を見てみてください。
-生バイナリ（データ）を渡したい場合は、引数の型として `+raw+` を指定することができる。
+生バイナリ（データ）を渡したい場合は、引数の型として `+raw+` を指定することができます。
 |===
 
 === 引数
