@@ -1,5 +1,95 @@
 = dfx config
 
+現在のプロジェクトの設定ファイルのセッティングを見るには、`+dfx config+` コマンドを使用します。
+このコマンドはプロジェクトのディレクトリ構造内からのみ実行できることに注意してください。
+例えば、プロジェクト名が `+hello_world+` の場合、現在の作業ディレクトリは `+hello_world+` のトップレベルのプロジェクトディレクトリかそのサブディレクトリのいずれかである必要があります。
+
+== 基本的な利用法
+
+[source,bash]
+----
+dfx config [config_path] [value] [flag]
+----
+
+== フラグ
+
+`+dfx config+` コマンドでは、以下のオプションフラグを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+== オプション
+
+`+dfx config+` コマンドでは、以下のオプションを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|オプション|説明
+|`+--format+` |設定ファイルの出力形式を指定します。
+JSON 形式がデフォルトで表示されます。
+有効な値は `+json+` と `+text+` です。
+|===
+
+== 引数
+
+`+dfx config+` コマンドには、以下の引数を指定することができます。
+
+[width="100%",cols="<34%,<66%",options="header"]
+|===
+|引数 |説明
+|`+config_path+` |セッティング、または読み込みを行う設定オプションの名前を指定します。
+変更（ value を第2引数に取る場合）または表示したい特定のオプションを、セッティング（ value を第2引数に取る場合）または読み取るには、ピリオドで区切られたパスを使用して設定ファイルオプションを指定する必要があります。
+特定の構成オプションへのパスを指定しない場合、コマンドは完全な設定ファイル (configiration file) を表示します。
+
+|`+value+` |変更するオプションの新しい値を指定します。
+値を指定しない場合、コマンドは設定ファイルからそのオプションの現在の値を返します。
+|===
+
+== 例
+
+`+dfx config+` コマンドを使用すると、デフォルトの出力ディレクトリの場所やメインプログラムのファイル名などの設定ファイルのセッティングを変更することができます。
+
+例えば、デフォルトのビルド出力ディレクトリを `+canisters+` から `+staging+` に変更する場合は、以下のコマンドを実行します：
+
+[source,bash]
+----
+dfx config defaults.build.output "staging/"
+----
+
+設定の現在値を表示するには、値を指定せずに設定ファイルの設定値へのパスを指定します。
+例えば：
+
+[source,bash]
+----
+dfx config defaults.build.output
+----
+
+このコマンドは、設定オプションの現在の値を返します。
+
+[source,bash]
+----
+"staging/"
+----
+
+同様に、以下のようなコマンドを実行することで、メインソースファイルの名前やローカル Canister 実行環境のポート番号も変更することができます：
+
+[source,bash]
+----
+dfx config canisters.hello.main "src/hello_world/hello-main.mo"
+dfx config networks.local.bind 127.0.0.1:5050
+----
+
+また、`+dfx config+` コマンドを実行した後に `+dfx.json+` 設定ファイルを見ることで、設定の変更を確認することができます。
+
+
+
+////
+= dfx config
+
 Use the `+dfx config+` command to view or configure settings in the configuration file for a current project.
 Note that you can only run this command from within the project directory structure.
 For example, if your project name is `+hello_world+`, your current working directory must be the `+hello_world+` top-level project directory or one of its subdirectories.
@@ -84,3 +174,7 @@ dfx config networks.local.bind 127.0.0.1:5050
 ----
 
 You can also verify your configuration changes by viewing the `+dfx.json+` configuration file after running the `+dfx config+` command.
+
+
+
+////
