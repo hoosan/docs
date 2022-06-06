@@ -645,14 +645,14 @@ dfx identity new sf-controller
 Creating identity: "sf-controller".
 Created identity: "sf-controller".
 ....
-. 新しい Identity をアクティブ Identity にする。
+. 新しい Identity をアクティブ Identity にします。
 +
 ....
 dfx identity use sf-controller
 
 Using identity: "sf-controller".
 ....
-. 新しい Identity のウォレット Canister ID を生成する。
+. 新しい Identity のウォレット Canister ID を生成します。
 +
 ....
 dfx identity get-wallet
@@ -709,8 +709,8 @@ dfx canister send _file_name_
 [width="100%",cols="<32%,<68%",options="header"]
 |===
 |引数 |説明
-|`+file_name+` |メッセージのファイル名を指定する。
-|===
+|`+file_name+` |メッセージのファイル名を指定します。
+|===　
 
 === 例
 
