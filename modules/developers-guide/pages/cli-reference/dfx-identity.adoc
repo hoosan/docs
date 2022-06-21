@@ -1,5 +1,520 @@
 = dfx identity
 
+コマンドを実行したり、{platform} やローカルの Canister 実行環境と通信するために使用するユーザー ID を管理するには、`+dfx identity+` コマンドとサブコマンド、フラグを使用します。
+複数のユーザー ID を作成することで、ユーザーベースのアクセス制御をテストすることができます。
+
+`+dfx identity+` コマンドの基本的な構文は以下の通りです：
+
+
+[source,bash]
+----
+dfx identity [subcommand] [flag]
+----
+
+指定する `+dfx identity+` サブコマンドによっては、追加の引数、オプション、フラグが適用されたり、要求されたりする場合があります。
+特定の `+dfx identity+` サブコマンドの使用情報を表示するには、そのサブコマンドと `+--help+` フラグを指定します。
+例えば、`+dfx identity new+` の使用情報を見るには、以下のコマンドを実行します：
+
+[source,bash]
+----
+dfx identity new --help
+----
+
+`+dfx identity+` コマンドの使用方法を説明する参考情報と例については、適切なコマンドを選択してください。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|コマンド |説明
+
+|<<dfx identity get-principal,`+get-principal+`>> | 現在の（ユーザー） ID に関連付けられた Principal のテキストタイプ表現を表示します。
+
+|<<dfx identity get-wallet,`+get-wallet+`>> | ユーザー IDに関連付けたウォレットの Canister ID を表示します。
+
+|`+help+` |この使用法のメッセージまたは指定されたサブコマンドのヘルプを表示します。
+
+|<<dfx identity import,`+import+`>> | Principal (ID) の鍵情報またはセキュリティ証明書を含む PEM ファイルをインポートして、新しいユーザー ID を作成します。
+
+|<<dfx identity list,`+list+`>> |既存の（ユーザー）ID リストを表示します。
+
+|<<dfx identity new,`+new+`>> |新しい（ユーザー）ID を作成します。
+
+|<<dfx identity remove,`+remove+`>> |既存の（ユーザー）ID を削除します。
+
+|<<dfx identity rename,`+rename+`>> |既存の（ユーザー）ID の名前を変更します。
+
+|<<dfx identity set-wallet,`+set-wallet+`>> | 現在の（ユーザー ID に対応する） Principal ID に使用するウォレット Canister ID を設定します。
+
+|<<dfx identity use,`+use+`>> |利用する（ユーザー）ID を指定します。
+
+|<<dfx identity whoami,`+whoami+`>> |現在のユーザー ID コンテクストの名前を表示します。
+|===
+
+== デフォルトの ID を作成する
+
+初めて `+dfx canister create+` コマンドを実行して（ユーザー）ID を登録するとき、公開鍵と秘密鍵のペアの認証情報が `+default+` ユーザー ID として使用されます。
+`+default+` ユーザーの認証情報は `+$HOME/.dfinity/identity/creds.pem+` から `+$HOME/.config/dfx/identity/default/identity.pem+` へ移行されます。
+
+その後、`+dfx identity new+` を使用して新しいユーザー ID を作成し、それらの ID の認証情報を `+$HOME/.config/dfx/identity/<identity_name>/identity.pem+` ファイルに保存することができます。
+例えば、以下のコマンドを実行して `+ic_admin+` という名前の ID を作成することができます：
+
+....
+dfx identity new ic_admin
+....
+
+このコマンドは `+ic_admin+` ユーザ ID 用の秘密鍵を `+~/.config/dfx/identity/ic_admin/identity.pem+` ファイルに追加します。
+
+== dfx identity get-principal
+
+現在のユーザー ID コンテクストに関連付けられた Principal のテキストタイプ表現を表示するには、`+dfx identity get-principal+` コマンドを使用します。
+
+もし、ユーザー ID を作成していない場合は、このコマンドを使用して `+default+` ユーザーの Principal を表示することができます。
+Principal のテキスト表現は、ロールベースの認証シナリオを確立してテストするのに便利です。
+
+=== 基本的な利用法
+
+[source,bash]
+----
+dfx identity get-principal [flag]
+----
+
+=== フラグ
+
+`+dfx identity get-principal+` コマンドでは、以下のオプションフラグを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== 例
+
+特定のユーザー ID コンテクストに関連付けられた Principal のテキストタイプ表現を表示する場合、次のようなコマンドを実行できます：
+
+[source,bash]
+----
+dfx identity use ic_admin
+dfx identity get-principal
+----
+
+この例では、最初のコマンドでユーザーコンテクストを設定し、 `+ic_admin+` という ID を使用するようにしています。そして、2番目のコマンドは `+ic_admin+` ID に関連付けられた Principal を返します。
+
+== dfx identity get-wallet
+
+現在のユーザー ID の Principal に関連付けられたウォレットの Canister ID を表示するには、`+dfx identity get-wallet+` コマンドを使用します。
+
+このコマンドを実行するには、{platform} またはローカルの Canister 実行環境に接続されている必要があることに注意してください。
+さらに、このコマンドを実行するには、プロジェクト・ディレクトリにいる必要があります。
+例えば、プロジェクト名が `+hello_world+` の場合、`+dfx identity get-wallet+` コマンドを実行するには、現在の作業ディレクトリが `+hello_world+` トップレベルのプロジェクトディレクトリかそのサブディレクトリのいずれかになる必要があります。
+
+=== 基本的な利用法
+
+[source,bash]
+----
+dfx identity get-wallet [flag]
+----
+
+=== フラグ
+
+`+dfx identity get-wallet+` コマンドでは、以下のオプションフラグを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== 例
+
+自分の ID に関連付けられたウォレット Canister の Canister ID を表示したい場合は、以下のコマンドを実行します：
+
+[source,bash]
+----
+dfx identity get-wallet
+----
+
+特定のテストネットで自分の ID に関連付けられたウォレット Canister の Canister ID を表示するには、次のようなコマンドを実行します。
+
+[source,bash]
+----
+dfx identity --network=https://192.168.74.4 get-wallet
+----
+
+== dfx identity import
+
+ユーザーの鍵情報またはセキュリティ証明書を PEM ファイルからインポートしてユーザー ID を作成するには、`+dfx identity import+` コマンドを使用します。
+
+=== 基本的な利用法
+
+[source,bash,subs=quotes]
+----
+dfx identity import [flag] _identity-name_ _pem_file-name_
+----
+
+=== フラグ
+
+`+dfx identity import+` コマンドでは、以下のオプションフラグを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== 例
+
+`+dfx identity import+` コマンドを使用すると、ID に使用するセキュリティ証明書を含む PEM ファイルをインポートすることができます。
+例えば、以下のコマンドを実行して `generated-id.pem` ファイルをインポートし、ユーザー ID `alice` を作成することができます。
+
+[source,bash]
+----
+dfx identity import alice generated-id.pem
+----
+
+このコマンドは `generated-id.pem` ファイルを `~/.config/dfx/identity/alice` ディレクトリに追加します。
+
+== dfx identity list
+
+利用可能なユーザー ID のリストを表示するには、`+dfx identity list+` コマンドを使用します。
+このコマンドを実行すると、リストには現在アクティブなユーザーコンテクストを示すアスタリスク (*) が表示されます。
+ID はグローバルであることに注意してください。特定のプロジェクト・コンテクストに限定されるものではありません。
+したがって、`+dfx identity list+` コマンドでリストアップされた ID はどのプロジェクトでも使用することができます。
+
+=== 基本的な利用法
+
+[source,bash]
+----
+dfx identity list [flag]
+----
+
+=== フラグ
+
+`+dfx identity list+` コマンドでは、以下のオプションフラグを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== 例
+
+`+dfx identity list+` コマンドを使用すると、現在利用可能なすべての ID をリストアップし、どの ID が `+dfx+` コマンドを実行する際に現在アクティブなユーザーコンテクストとして使用されているかを判断することができます。
+例えば、以下のコマンドを実行すると、利用可能な ID をリストアップすることができます：
+
+[source,bash]
+----
+dfx identity list
+----
+
+このコマンドは、次のように見つかった ID の一覧を表示します：
+
+[source,bash]
+----
+alice_auth
+anonymous
+bob_standard *
+default
+ic_admin
+----
+
+この例では、`+bob_standard+` ID が現在アクティブなユーザーコンテクストとなります。
+このコマンドを実行してアクティブなユーザーを決定した後、追加で実行する `+dfx+` コマンドは `+bob_standard+` ID に関連付けられた Principal を使用して実行されることになります。
+
+== dfx identity new
+
+新しいユーザー ID を追加するには、`+dfx identity new+` コマンドを使用します。
+追加した ID はグローバルなものであることに注意する必要があります。これらは特定のプロジェクトのコンテクストに限定されるものではありません。
+したがって、 `+dfx identity new+` コマンドで追加した ID はどのプロジェクトでも使用することができます。
+
+=== 基本的な利用法
+
+[source,bash]
+----
+dfx identity new [flag] _identity-name_
+----
+
+=== フラグ
+
+`+dfx identity new+` コマンドでは、以下のオプションフラグを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== 引数
+
+`+dfx identity new+` コマンドには、以下の引数を指定する必要があります。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|引数|説明
+
+|`+<identity_name>+` |作成する ID の名前を指定します。
+この引数は必須です。
+
+|===
+
+=== 例
+
+その後、`+dfx identity new+` を使用して新しいユーザー ID を作成し、それらの ID の認証情報を `+$HOME/.config/dfx/identity/<identity_name>/identity.pem+` ファイルに保存することができます。
+例えば、以下のコマンドを実行して `+ic_admin+` という名前の ID を作成することができます：
+
+....
+dfx identity new ic_admin
+....
+
+このコマンドは `+ic_admin+` ユーザー ID 用の秘密鍵を `+~/.config/dfx/identity/ic_admin/identity.pem+` ファイル内に追加します。
+
+新しい ID 用の秘密鍵を追加した後、コマンドは ID が作成されたことを確認するメッセージを表示します：
+
+....
+Creating identity: "ic_admin".
+Created identity: "ic_admin".
+....
+
+== dfx identity remove
+
+既存のユーザー ID を削除するには、`+dfx identity remove+` コマンドを使用します。
+あなたが追加した ID はグローバルなものであることに注意してください。これらは特定のプロジェクトのコンテクストに限定されるものではありません。
+したがって、`+dfx identity remove+` コマンドを使用して削除した ID は、どのプロジェクトでも使用することができなくなります。
+
+=== 基本的な利用法
+
+[source,bash]
+----
+dfx identity remove [flag] _identity-name_
+----
+
+=== フラグ
+
+`+dfx identity remove+` コマンドでは、以下のオプションフラグを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== 引数
+
+`+dfx identity remove+` コマンドには、以下の引数を指定する必要があります。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|引数 |説明
+
+|`+<identity_name>+` |削除する ID の名前を指定します。
+この引数は必須です。
+
+|===
+
+=== 例
+
+`+dfx identity remove+` コマンドを使用すると、`+default+` ユーザー ID を含む、以前に作成された ID を削除することができます。
+例えば、名前付きユーザー ID を追加していて、`+default+` ユーザー ID を削除したい場合、以下のコマンドを実行します：
+
+....
+dfx identity remove default
+....
+
+コマンドは、ID が削除されたことの確認を表示します：
+
+....
+Removing identity "default".
+Removed identity "default".
+....
+
+`+Default+` ID は、置き換えるために他の ID を作成した場合、削除することができますが、常に少なくとも1つの ID が利用可能である必要があります。
+最後に残ったユーザーコンテクストを削除しようとすると、 `+dfx identity remove+` コマンドは次のようなエラーを表示します：
+
+....
+Identity error:
+  Cannot delete the default identity
+....
+
+== dfx identity rename
+
+既存のユーザー ID の名前を変更するには、`+dfx identity rename+` コマンドを使用します。
+あなたが追加した ID はグローバルなものであることに注意してください。これらは特定のプロジェクトのコンテクストに限定されるものではありません。
+したがって、`+dfx identity rename+` コマンドを使用して名前を変更した ID は、どのプロジェクトでも新しい名前で利用することができます。
+
+=== 基本的な利用法
+
+[source,bash]
+----
+dfx identity rename [flag] _from_identity-name_ _to_identity-name_
+----
+
+=== フラグ
+
+`+dfx identity rename+` コマンドでは、以下のオプションフラグを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== 引数
+
+`+dfx identity rename+` コマンドには、以下の引数を指定する必要があります。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|引数 |説明
+
+|`+<from_identity_name>+` |名前を変更したい ID の現在の名前を指定します。
+この引数は必須です。
+
+|`+<to_identity_name>+` |名前を変更したい ID の新しい名前を指定します。
+この引数は必須です。
+
+|===
+
+=== 例
+
+`+default+` ユーザー、または以前に作成した ID の名前は `+dfx identity rename+` コマンドを使用して変更することができます。
+例えば、以前に作成した `+test_admin+` という ID の名前を変更したい場合、以下のようなコマンドを実行して、変更したい現在の ID 名を **from**、変更したい新しい名前を **to** に指定します：
+
+....
+dfx identity rename test_admin devops
+....
+
+== dfx identity set-wallet
+
+ユーザー ID に使用するウォレット Canister ID を指定するには、`+dfx identity set-wallet+` コマンドを使用します。
+
+=== 基本的な利用法
+
+[source,bash]
+----
+dfx identity set-wallet [flag] [--canister-name canister-name] 
+----
+
+=== フラグ
+
+`+dfx identity set-wallet+` コマンドでは、以下のオプションフラグを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+force+` |指定した Canister が有効なウォレット Canister であることの検証をスキップします。
+このオプションは、ローカルで {IC} に接続している場合にのみ有効です。
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== 例
+
+ユーザー ID に複数の Principal を使用している場合、複数のウォレット Canister ID にアクセスすることができます。
+`+dfx identity set-wallet+` コマンドを使用すると、与えられた ID に使用するウォレット Canister の ID を指定することができます。
+
+例えば、ウォレット Canister の ID を環境変数に保存し、次のように実行して `+dfx identity set-wallet+` コマンドを呼び出し、追加の操作にそのウォレット Canister を使用することができます：
+
+....
+export WALLET_CANISTER_ID=$(dfx identity get-wallet)
+dfx identity --network=https://192.168.74.4 set-wallet --canister-name ${WALLET_CANISTER_ID} 
+....
+
+== dfx identity use
+
+`+dfx identity use+` コマンドを使用して、アクティブにしたいユーザー ID を指定します。
+使用可能な ID はグローバルなものであることに注意してください。特定のプロジェクトのコンテクストに限定されるものではありません。
+したがって、以前に作成した ID はどのプロジェクトでも使用することができます。
+
+=== 基本的な利用法
+
+[source,bash]
+----
+dfx identity use [flag] _identity-name_
+----
+
+=== フラグ
+
+`+dfx identity use+` コマンドでは、以下のオプションフラグを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== 引数
+
+`+dfx identity use+` コマンドには、以下の引数を指定する必要があります。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|引数 |説明
+
+|`+<identity_name>+` |後続のコマンドで有効にしたい ID の名前を指定します。
+この引数は必須です。
+
+|===
+
+=== 例
+
+同じユーザー ID のコンテクストで複数のコマンドを実行したい場合は、次のようなコマンドを実行します：
+
+....
+dfx identity use ops
+....
+
+このコマンドを実行した後、以降のコマンドは `+ops+` ユーザに関連する認証情報およびアクセス制御を使用します。
+
+== dfx identity whoami
+
+現在アクティブなユーザー ID コンテクストの名前を表示するには、`+dfx identity whoami+` コマンドを使用します。
+
+=== 基本的な利用法
+
+[source,bash]
+----
+dfx identity whoami [flag]
+----
+
+=== フラグ
+
+`+dfx identity whoami+` コマンドでは、以下のオプションフラグを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== 例
+
+現在アクティブなユーザー ID の名前を表示したい場合は、次のコマンドを実行します：
+
+[source,bash]
+----
+dfx identity whoami
+----
+
+コマンドはユーザー ID の名前を表示します。
+例えば、以前に `+dfx identity use bob_standard+` というコマンドを実行していた場合、コマンドは次のように表示します。
+....
+bob_standard
+....
+
+
+
+////
+= dfx identity
+
 Use the `+dfx identity+` command with subcommands and flags to manage the identities used to execute commands and communicate with the {platform} or the local canister execution environment.
 Creating multiple user identities enables you to test user-based access controls.
 
@@ -509,3 +1024,7 @@ For example, you had previously run the command `+dfx identity use bob_standard+
 ....
 bob_standard
 ....
+
+
+
+////
