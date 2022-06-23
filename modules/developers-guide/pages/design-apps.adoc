@@ -1,3 +1,54 @@
+= Dapp の設計
+:proglang: Motoko
+:IC: Internet Computer
+:company-id: DFINITY
+
+Dapp のアイデアを思いついたら、どのような構成にするか、どのようにプロジェクトをまとめるか、多くの設計上の決定をすることになります。
+{IC} では、アプリの実装を計画立案する際に、特に注意すべき設計上の判断がいくつかあります。
+
+CAUTION: このセクションは進行中であり、未完成です。{IC} 上で動作する Dapp を構築するためのベストプラクティスとデザインパターンが進化するにつれ、ここに含まれる情報も進化・変化していくでしょう。
+
+== シングルまたはマルチ Canister アーキテクチャ
+
+Dapp を設計する際に考慮すべき最初の決定の１つは、単一の Canister スマートコントラクトにカプセル化するか、複数の Canister スマートコントラクトで構成するかを決めることです。
+
+例えば、フロントエンドのないシンプルなサービスを書いている場合、プロジェクト管理とメンテナンスを簡素化し、機能の追加に集中するために、単一の Canister を使用するとよいでしょう。
+フロントエンドのアセットとバックエンドのビジネスロジックの両方を持つ Dapp の場合、プロジェクトは少なくとも２つの Canister で構成され、ある Canister はユーザーインターフェースコンポーネントを管理し、別の Canister はアプリケーションが提供するバックエンドサービス用になります。
+
+計画立案にあたっては、再利用可能な一般的なサービスをサービス自身の Canister に配置することで、より専門的な他の Canister からインポートされて呼び出されたり、他の開発者が使用できるようにすることも検討するとよいでしょう。
+link:https://github.com/dfinity/linkedup[LinkedUp] のサンプルの Dapp は、専門的なサービスの Dapp を２つの Canister に分けており、このアプローチの良い例となっています。
+LinkedUp の例では、ソーシャルコネクションを確立する機能は `connectd` Canister で定義され、`linkedup` Canister で定義されている専門的なプロフィールを設定するための機能とは、別になっています。
+例えば、プロフィールの属性または共有コネクションに基づくイベントをスケジュールするために、３つ目の Canister で Dapp を拡張することは容易に想像がつきます。
+
+== 型とユーティリティから Actor を分離
+
+プロジェクトのアーキテクチャを計画立案する際の一般的な方法の１つは、メイン Actor のコードを、プログラムで使用する型と Actor を必要としないユーティリティ関数を定義するための個別の追加ファイルとともに、１つのファイルに配置することです。
+
+例えば、Dapp のバックエンドロジックを下記ファイルで構成できます。
+
+* `+Main.mo+` または `+main.rs+` には、Actor がクエリコールとアップデートコールを送信する必要がある関数があります。
+* `+Util.mo+` または `+util.rs+` には、Actor が使用するにあたり、インポートできるヘルパー関数があります。
+* `+Types.mo+` または `+types.rs+` には、Dapp のすべてのデータ型定義があります。
+
+== クエリコールの使用
+
+link:../developers-guide/concepts/canisters-code{outfilesuffix}#query-update[クエリーとアップデートメソッド] で述べたように、クエリコールはアップデートコールよりも速く結果を返します。したがって、関数を明示的に `+query+` としてマークすることは、アプリケーションのパフォーマンスを向上させるための効果的な戦略です。
+計画立案・設計段階では、クエリーまたはアップデートを実行できる関数ではなく、どのようにクエリコールを使用するのが最適かを検討する必要があります。
+
+これは従うべき一般的なルールであり、ほとんどのカテゴリーの Dapp に広く適用できます。
+しかし、クエリーがコンセンサスを得られず、ブロックチェーン上で見えないというセキュリティとパフォーマンスのトレードオフも考慮する必要があります。
+Dapp によっては、そのトレードオフが適切な場合もあります。例えば、ブログプラットフォームを開発している場合、タグに一致する記事を取得するクエリーは、おそらく大多数のノードが結果に同意していることを保証するためにコンセンサスを経る必要はないでしょう。
+しかし、金融データのような機密情報を取得する Dapp の場合は、簡易的なクエリーよりも確実な結果を求めるかもしれません。
+
+簡易的なクエリーの代わりに、{IC} は *certified queries* もサポートしています。certified queries により、エンドユーザが信頼できる *authenticated responses* を受け取ることができます。certified queries の使用は高度なテクニックであり、チュートリアルまたは他の開発者向けのドキュメントでは扱っていませんが、認証 (authentication) の仕組みとクエリーに対するレスポンスとして証明済み (certified) データを返すようにプログラムを設定するために必要なことは、次のリンクで学べます。 link:../interface-spec/index{outfilesuffix}[Interface specification]
+
+
+== データの保存と検索
+
+{IC} は、長期的なデータ保存を扱うために *stable memory* （しばしば直交永続性と呼ばれる）を使用し、データを取得するために *クエリコール* を使用することを可能にします。
+１つ以上のキーを使って効率的にデータを取り出すには、通常、ハッシュテーブルのようなデータ構造を使用します。
+また、従来のデータベースを Canister 内に実装することも可能です。
+////
 = Design dapps
 :proglang: Motoko
 :IC: Internet Computer
@@ -47,3 +98,4 @@ As an alternative to basic queries, the {IC} also supports *certified queries*. 
 The {IC} enables you to use *stable memory* to handle long-term data storage—often referred to as orthogonal persistence—and to use *query calls* to retrieve your data.
 Efficiently retrieving data using one or more keys can typically be achieved by using data structures like hash tables.
 It is also possible to implement a more traditional database inside a canister.
+////
