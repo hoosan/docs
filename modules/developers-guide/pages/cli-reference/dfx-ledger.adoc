@@ -1,5 +1,405 @@
 = dfx ledger
 
+`+dfx ledger+` コマンドを使用して、「 Ledger Canister 」（台帳）と対話を行います。
+
+このコマンドは、ユーティリティトークンである ICP をある Canister から別の Canister に移転するトランザクションや、ICP から（ミントされた） Cycle を Canister に追加したりするために使用されます。
+
+`+dfx ledger+` コマンドを実行するための基本的な構文は以下のとおりです：
+
+[source,bash]
+----
+dfx ledger [options] [subcommand]
+----
+
+指定する `+dfx ledger+` サブコマンドによっては、追加の引数、オプション、フラグが適用される場合があります。`+dfx ledger+` コマンドの使い方を説明するリファレンス情報と例については適切なコマンドを選択してご覧ください。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|コマンド |説明
+|<<dfx ledger account-id,`+account-id+`>> |選択された（ユーザー）ID のアカウント ID を表示します。
+|<<dfx ledger balance,`+balance+`>> |（ユーザー） ID のアカウント ID の残高を表示します。
+|<<dfx ledger create-canister,`+create-canister+`>> |ICP から Canister を作成します。
+|`+help+` |指定されたサブコマンドの使用情報メッセージを表示します。
+|<<dfx ledger notify,`+notify+`>> |Cycle をミントする Canister への送信トランザクションがあった場合、台帳に通知します。
+|<<dfx ledger top-up,`+top-up+`>> |ICP からミントする Cycle を Canister に追加します。
+|<<dfx ledger transfer,`+transfer+`>> |ユーザーから転送先のアカウント ID に ICP を転送します。
+|===
+
+特定のサブコマンドの使用情報を見るには、そのサブコマンドと `+--help+` フラグを指定します。
+例えば、`+dfx ledger transfer+` の使用情報を見るには、以下のコマンドを実行します：
+
+`+dfx ledger transfer --help+`
+
+[[account-id]]
+== dfx ledger account-id
+
+現在、アクティブな ID に関連付けられたアカウント ID を表示するには、`+dfx ledger account-id+` コマンドを使用します。
+開発者（ユーザー） ID の Principal のテキストタイプ表現と同様、アカウント ID は秘密鍵から派生したもので、Ledger Canister であなたの ID を表現するために使われます。
+
+=== 基本的な利用法
+
+[source,bash]
+----
+dfx ledger account-id [flag]
+----
+
+=== フラグ
+
+以下のオプションフラグは `+dfx ledger account-id+` コマンドと一緒に使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== 例
+
+複数の ID を作成した場合、`+dfx identity whoami+` コマンドまたは `+dfx identity get-principal+` コマンドを実行して、現在使用している（ユーザー） ID を確認します。次に、以下のコマンドを実行して、現在選択されている開発者用（ユーザー） ID のアカウント ID を確認できます：
+
+[source,bash]
+----
+dfx ledger account-id
+----
+
+このコマンドは次のような出力を表示します：
+
+....
+03e3d86f29a069c6f2c5c48e01bc084e4ea18ad02b0eec8fccadf4487183c223
+....
+
+[[balance]]
+== dfx ledger balance
+
+`+dfx ledger balance+` コマンドは自分のアカウント残高や他のユーザーのアカウント残高を表示します。
+
+=== 基本的な利用法
+
+[source,bash]
+----
+dfx ledger --network ic balance [of] [flag]
+----
+
+=== フラグ
+
+以下のオプションフラグは `+dfx ledger balance+` コマンドで使用できます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== 引数
+
+`+dfx ledger balance+` コマンドには以下の引数を指定することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|引数 |説明
+|`+<of>+` |残高を取得するアカウント ID を指定します。指定しない場合は、現在選択されているユーザー ID （に紐づくアカウント）の ICP トークン残高を返します。
+|===
+
+=== 例
+
+他のユーザーの残高を確認するには、`+dfx ledger balance+` コマンドを使用します。
+例えば、以下のコマンドを実行すると、既知のアカウント ID に関連付けられた ICP トークンを確認することができます：
+
+[source,bash]
+----
+dfx ledger --network ic balance 03e3d86f29a069c6f2c5c48e01bc084e4ea18ad02b0eec8fccadf4487183c223
+----
+このコマンドは次のような ICP 数量を表示します：
+
+....
+2.49798000 ICP
+....
+
+[[create-canister]]
+== dfx ledger create-canister
+
+`+dfx ledger create-canister+` コマンドを使用して、ICP トークンを Cycle に変換し、{IC} に新しい Canister ID を登録することができます。
+
+=== 基本的な利用法
+
+[source,bash,subs=quotes]
+----
+dfx ledger --network ic create-canister _controller_ [options]  [flag]
+----
+
+=== フラグ
+
+`+dfx ledger create-canister+` コマンドには以下のオプションフラグを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== 引数
+
+`+dfx ledger create-canister+` コマンドには以下の引数を指定することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|引数 |説明
+|`+<controller>+` |新しい Canister のコントローラーとして設定する Principal ID を指定します。
+|===
+
+=== オプション
+
+`+dfx ledger create-canister+` コマンドには以下の引数を指定することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|オプション |説明
+|`+--amount <amount>+` |ICP トークンかミントされた Cycle を、送金先 Canister にデポジットする数量を指定します。金額は小数点以下8桁までの数字で指定できます。
+|`+--e8s <e8s>+` |ICP トークンの分数単位（e8）を整数で指定します。例えば、1.05000000は1 ICP と5,000,000 e8s です。このオプションは単独で、あるいは `+--icp+` オプションと一緒に使用することができます。
+|`+--fee <fee>+` |取引手数料を指定します。デフォルトは10,000 e8s です。
+|`+--icp <icp>+` |ICP トークンを整数で指定します。このオプションは単独で、あるいは `+--e8s+` と組み合わせて使用することができます。
+|`+--max-fee <max-fee>+` |取引手数料の上限を指定します。デフォルトは10,000 e8s です。
+|===
+
+=== 例
+
+Cycle を扱える新しい Canister を作成するには、以下のようなコマンドを実行して、台帳アカウントから ICP トークンを転送します：
+
+[source,bash]
+----
+dfx ledger --network ic create-canister tsqwz-udeik-5migd-ehrev-pvoqv-szx2g-akh5s-fkyqc-zy6q7-snav6-uqe --amount 1.25
+----
+
+このコマンドは `+--amount+` 引数に指定した ICP トークンの数量を Cycle に変換し、指定した Principal で制御される新しい Canister ID に Cycle を関連付けます。
+
+この例では、コマンドは 1.25 ICP トークンを Cycle に変換し、新しい Canister のコントローラーとして、デフォルトの（ユーザー） ID の Principal ID を指定しています。
+
+トランザクションが成功すると、台帳にイベントが記録され、次のような出力が表示されるはずです。
+
+....
+Transfer sent at BlockHeight: 20
+Canister created with id: "53zcu-tiaaa-aaaaa-qaaba-cai"
+....
+
+以下のようなコマンドを実行して、ICP トークンと e8s に別々の値を指定することで、新しい Canister を作成することができます。
+
+[source,bash]
+----
+dfx ledger --network ic create-canister tsqwz-udeik-5migd-ehrev-pvoqv-szx2g-akh5s-fkyqc-zy6q7-snav6-uqe --icp 3 --e8s 5000
+----
+
+[[notify]]
+== dfx ledger notify
+
+`+dfx ledger notify+` コマンドを使用すると、Cycle をミントする Canister への送信トランザクションを台帳に通知します。
+このコマンドは `+dfx ledger create-canister+` や `+dfx ledger top-up+` が台帳へのメッセージ送信に成功し、あるブロック高でトランザクションが記録されたが、何らかの理由でその後の通知に失敗した場合のみ使用されます。
+
+=== 基本的な利用法
+
+[source,bash,sub=quote]
+----
+dfx ledger notify [options] _block-height_ _destination-principal_
+----
+
+=== フラグ
+
+`+dfx ledger notify+` コマンドでは以下のオプションフラグを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== 引数
+
+`+dfx ledger notify+` コマンドでは以下の引数を指定することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|引数|説明
+|`+<block-height>+` |送信トランザクションが記録されたブロック高を指定します。
+|`+<destination-principal>+` |送信先の Principal を指定します。Canister ID またはユーザー ID の Principal のテキストタイプ表現のいずれかを指定します。
+送信トランザクションが `+create-canister+` コマンドの場合は、`+controller+` Principal を指定します。
+送信トランザクションが `+top-up+` コマンドの場合、`+canister ID+` を指定します。
+|===
+
+=== 例
+
+次の例は、ブロック高 `+75948+` で記録された `_send+` トランザクションのレスポンスとして `+notify+` メッセージを台帳に送信するものです。
+
+[source,bash]
+----
+dfx ledger --network ic notify 75948 tsqwz-udeik-5migd-ehrev-pvoqv-szx2g-akh5s-fkyqc-zy6q7-snav6-uqe
+----
+
+[[top-up]]
+== dfx ledger top-up
+
+`+dfx ledger top-up+` コマンドでは、ICPトークンからミントされた Cycle を Canister に追加することができます。
+
+=== 基本的な利用法
+
+[source,bash,subs=quotes]
+----
+dfx ledger --network ic top-up [options] _canister_ [flag]
+----
+
+=== フラグ
+
+`+dfx ledger top-up+` コマンドでは以下のオプションフラグが使用できます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== 引数
+
+`+dfx ledger top-up+` コマンドには以下の引数を指定することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|引数 |説明
+|`+canister+` |追加する Canister ID を指定します。
+|===
+
+=== オプション
+
+`+dfx ledger top-up+` コマンドには以下のオプションを指定することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|オプション |説明
+|`+--amount <amount>+` |ICP トークンかミントされた Cycle を、送金先 Canister にデポジットする数量を指定します。金額は小数点以下8桁までの数字で指定できます。
+|`+--e8s <e8s>+` |ICP トークンの最小単位を e8 とし，小数点以下の単位を整数で指定します．例えば、1.05000000は1 ICPと5,000,000 e8s です。このオプションは単独で、あるいは `+--icp+` オプションと一緒に使用することができます。
+|`+--fee <fee>+` |オペレーションの取引手数料を指定します。デフォルトは10,000 e8s です。
+|`+--icp <icp>+` |ICP トークンを整数で指定します。このオプションは単独で、あるいは `+--e8s+` と組み合わせて使用することができます。
+|`+--max-fee <max-fee>+` |取引手数料の上限を指定します。デフォルトは10,000 e8s です。
+|===
+
+=== 例
+
+`+dfx ledger top-up+` コマンドを使用すると、自分が管理している ICP トークンの残高から、特定の Canister の Cycle を追加することができます。
+Canister ID は Cycle を受け取ることができる 「Cycle Wallet Canister 」と関連付けられている必要があります。または、 link:../../interface-spec/index{outfilesuffix}[Internet Computer Interface Specification] に記載されているシステム API を使って Cycle を受け取る方法を実装するために、「Cycle Wallet Canister 」ではない Canister を変更することもできます。
+
+例えば、以下のコマンドを実行すると、{IC} に配置された Cycle Wallet Canister に1 ICP 相当の Cycle を追加することができます：
+
+[source,bash]
+----
+dfx ledger --network ic top-up --icp 1 5a46r-jqaaa-aaaaa-qaadq-cai
+----
+このコマンドは次のような出力を表示します：
+
+....
+Transfer sent at BlockHeight: 59482
+Canister was topped up!
+....
+
+[[transfer]]
+== dfx ledger transfer
+
+`+dfx ledger transfer+` コマンドを使用すると、ICP トークンを Ledger Canister のアカウントアドレスから送信先アドレスに転送することができます。
+
+=== 基本的な利用法
+
+[source,bash,subs=quotes]
+----
+dfx ledger transfer [options] _to_ --memo _memo_
+----
+
+=== フラグ
+
+`+dfx ledger transfer+` コマンドでは、以下のオプションフラグを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== 引数
+
+`+dfx ledger transfer+` コマンドには以下の引数を指定することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|引数 |説明
+|`+<to>+` |ICP トークンの送金先であるアカウント ID またはアドレスを指定します。
+|===
+
+=== オプション
+
+`+dfx ledger transfer+` コマンドには以下の引数を指定することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|オプション |説明
+|`+--amount <amount>+` |転送する ICP トークンの数量を指定します。
+小数点以下8桁までの数値で指定可能です。
+|`+--e8s <e8s>+` |e8s を整数で指定し，1 e8 を ICPトークンの最小値とする。例えば、1.05000000は1 ICPと5,000,000 e8s である。このオプションは単独で、あるいは `+--icp+` オプションと一緒に使用することができます。
+|`+--fee <fee>+` |取引手数料を指定します。デフォルトは10,000 e8s です。
+|`+--icp <icp>+` |ICP を整数で指定します。このオプションは単独で、または `+--e8s+` と組み合わせて使用することができます。
+|`+--memo <memo>+` |このトランザクションの数値メモを指定します。
+|===
+
+=== 例
+
+`+dfx ledger transfer+` コマンドを使用すると、転送先のアカウント ID に ICP を送信することができます。
+
+例えば、以下のコマンドを実行すると、現在使用している Principal に関連するアカウント ID を確認することができます。
+
+[source,bash]
+----
+dfx ledger account-id
+----
+
+このコマンドは、次のような出力を表示します：
+
+....
+30e596fd6c5ff5ad7b7d70bbbda1187c833e646c6251464da7f82bc217bba397
+....
+
+このアカウントの残高は以下のコマンドを実行することで確認することができます：
+
+[source,bash]
+----
+dfx ledger --network ic balance
+----
+
+このコマンドは、次のような出力を表示します：
+
+....
+64.89580000 ICP
+....
+
+以下のコマンドを使用して、`+dfx ledger transfer+` コマンドで ICP 残高の一部を別の既知の送信先に送信してください。
+
+[source,bash]
+----
+dfx ledger --network ic transfer dd81336dbfef5c5870e84b48405c7b229c07ad999fdcacb85b9b9850bd60766f --memo 12345 --icp 1
+----
+
+このコマンドは、次のような出力を表示します：
+
+....
+Transfer sent at BlockHeight: 59513
+....
+
+その後、`+dfx ledger --network ic balance+` コマンドを使用して、アカウント残高に今行った取引が反映されているかどうかを確認することができます。
+
+
+
+////
+= dfx ledger
+
 Use the `+dfx ledger+` command to interact with the ledger canister.
 
 This command can be used to make ICP utility token transactions from one canister to another, or top up canisters with cycles from ICP.
@@ -395,3 +795,7 @@ Transfer sent at BlockHeight: 59513
 ....
 
 You can then use the `+dfx ledger --network ic balance+` command to check that your account balance reflects the transaction you just made.
+
+
+
+////
