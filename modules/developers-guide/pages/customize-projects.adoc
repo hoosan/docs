@@ -1,3 +1,119 @@
+= プロジェクトを管理する
+:proglang: Motoko
+:IC: Internet Computer blockchain
+:company-id: DFINITY
+
+各プロジェクトの `+dfx.json+` 設定ファイルを変更することで、個々のプロジェクトのいくつかの重要な設定を変更できます。
+これらの設定は、`+dfx config+` コマンドを使用してプログラム的に変更する または 手動で `+dfx.json+` ファイルを直接編集することで、変更できます。
+
+== ソースディレクトリの変更方法
+
+`+dfx build+` コマンドを使用してプロジェクトのソースコードをコンパイルする前に、Dapp のソースコードを保存するデフォルトの場所を確認したいと思うかもしれません。
+デフォルトでは、新しいプロジェクトを作成する際に使用する名前は、１つの Canister スマートコントラクト (`+canister_name+`) と１つのアセットキャニスター (`+canister_name_assets+`) に使用する名前であり、Dapp のソースコードは `+src/canister_name+` ディレクトリにあるでしょう。同様に、フロントエンドのソースコード用のデフォルトの場所は `+src/canister_name_assets/src+` ディレクトリであり、フロントエンドの出力先は `+dist/canister_name_assets+` ディレクトリになります。
+
+しかし、Dapp の複雑さとアーキテクチャによっては、Dapp のソースコード、フロントエンドのソースコード、フロントエンドの出力のデフォルトの場所を変更したくなるかもしれません。
+
+例えば、単純な Dapp であれば、ディレクトリの階層を一つ取り除いて、ソースコードを `+src+` ディレクトリに置きたいと思うかもしれません。
+
+[source,text]
+----
+  "main": "src/main.mo",
+----
+
+より複雑な Dapp の場合は、多階層のディレクトリ構造を使いたいと思うかもしれません。
+
+[source,text]
+----
+"canisters": {
+  "profiles": {
+    "main": "src/profiles/utils/main.mo"
+  },
+  "events": {
+    "main": "src/events/calendar/main.mo"
+  },
+  "media": {
+    "main": "src/events/reports/main.mo"
+  }
+}
+----
+
+NOTE: ソースコードのディレクトリのデフォルト設定を変更する場合は、`+dfx.json+` 設定ファイルの設定がファイルシステム上のディレクトリの場所と一致していることを確認してください。
+
+////
+以下、コメントアウトされているため、翻訳せず。
+== How to change your output directory
+
+When you compile source code for your project using the `+dfx build+` command, the command automatically generates a WebAssembly executable and interface bindings in a default output folder. 
+You can customize the default output folder for a project by modifying the project’s local `+dfx.json+` configuration file. 
+You can change settings in the `+dfx.json+` configuration file manually by editing the file or programmatically by running the `+dfx config+` command.
+
+To see the default output folder you are currently using, run the following command:
+
+[source,bash]
+----
+dfx config defaults.build.output
+----
+
+The command returns the setting you have currently defined in the `+dfx.json+` configuration file. 
+For example:
+
+[source,bash]
+----
+"canisters/"
+----
+
+To change the default output folder, run the `+dfx config+` command and specify a new location. 
+For example, to change the default output directory from `+canisters+` to `+ready_for_release+`, run the following command:
+
+[source,bash]
+----
+dfx config defaults.build.output ready_for_release
+----
+
+This command changes the `+output+` setting in the `+dfx.json+` configuration file to `+ready_for_release+`.
+
+For example:
+
+[source,json]
+----
+  "defaults": {
+    "build": {
+      "output": "ready_for_release"
+----
+////
+
+== メインの Dapp ファイル名を変更する方法
+
+`+dfx build+` コマンドを使用してプロジェクトのソースコードをコンパイルする前に、Dapp のソースコードに使用されている場所とファイル名を確認すべきです。
+
+例えば、`+factorial+` という Dapp 用の Canister スマートコントラクトをビルドしたい場合、その Dapp のソースコードが `+src/math/factorial.mo+` にあるとすると、設定ファイルの `+canisters+` セクションで `+main+` 設定に正しいパスが指定されていることを確認すべきです。
+
+例えば、下記です。
+
+[source,json]
+----
+"main": "src/math/factorial.mo",
+----
+
+Dapp のファイル名の設定を変更しても、`+dfx build+` コマンドがコンパイルするソースコードを探す場所にしか影響しないことを覚えておいてください。設定ファイルを変更しても、ファイルシステム上のファイルまたはディレクトリの名前は変更されません。
+メインの Dapp ファイルのパス または ファイル名自体 を変更する場合は、必ずプロジェクトディレクトリ内の名前と場所を変更してください。
+
+== Dapp のフロントエンドを提供する場所を変更する方法
+
+設定ファイル `+dfx.json+` のローカルネットワークの設定を変更することで、Dapp フロントエンドを提供するためのデフォルトのホスト名とポート番号を変更できます。
+
+例えば、`+bind+` の設定を変更することで、ローカルネットワークの IP アドレスを変更できます。
+
+[source,json]
+----
+"networks": {
+  "local": {
+    "bind": "192.168.47.1:8000",
+    "type": "ephemeral"
+  }
+}
+----
+////
 = Manage projects
 :proglang: Motoko
 :IC: Internet Computer blockchain
@@ -40,6 +156,7 @@ For more complex dapps, you might want to use a multi-tiered directory structure
 NOTE: If you modify the default settings for a source code directory, be sure that the settings in the `+dfx.json+` configuration file match the directory location on the file system.
 
 ////
+////
 == How to change your output directory
 
 When you compile source code for your project using the `+dfx build+` command, the command automatically generates a WebAssembly executable and interface bindings in a default output folder. 
@@ -80,6 +197,7 @@ For example:
       "output": "ready_for_release"
 ----
 ////
+////
 
 == How to change the main dapp file name
 
@@ -113,3 +231,4 @@ For example, you can change the IP address for the local network by modifying th
   }
 }
 ----
+////
