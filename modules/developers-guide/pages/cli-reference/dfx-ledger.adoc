@@ -16,13 +16,13 @@ dfx ledger [options] [subcommand]
 [width="100%",cols="<32%,<68%",options="header"]
 |===
 |コマンド |説明
-|<<dfx ledger account-id,`+account-id+`>> |選択された（ユーザー）ID のアカウント ID を表示します。
-|<<dfx ledger balance,`+balance+`>> |（ユーザー） ID のアカウント ID の残高を表示します。
+|<<dfx ledger account-id,`+account-id+`>> |選択された開発者 Indentity のアカウント ID を表示します。
+|<<dfx ledger balance,`+balance+`>> |ユーザー Identity のアカウント ID の残高を表示します。
 |<<dfx ledger create-canister,`+create-canister+`>> |ICP から Canister を作成します。
 |`+help+` |指定されたサブコマンドの使用情報メッセージを表示します。
 |<<dfx ledger notify,`+notify+`>> |Cycle をミントする Canister への送信トランザクションがあった場合、台帳に通知します。
 |<<dfx ledger top-up,`+top-up+`>> |ICP からミントする Cycle を Canister に追加します。
-|<<dfx ledger transfer,`+transfer+`>> |ユーザーから転送先のアカウント ID に ICP を転送します。
+|<<dfx ledger transfer,`+transfer+`>> |ユーザー Identity から転送先のアカウント ID に ICP を転送します。
 |===
 
 特定のサブコマンドの使用情報を見るには、そのサブコマンドと `+--help+` フラグを指定します。
@@ -33,8 +33,8 @@ dfx ledger [options] [subcommand]
 [[account-id]]
 == dfx ledger account-id
 
-現在、アクティブな ID に関連付けられたアカウント ID を表示するには、`+dfx ledger account-id+` コマンドを使用します。
-開発者（ユーザー） ID の Principal のテキストタイプ表現と同様、アカウント ID は秘密鍵から派生したもので、Ledger Canister であなたの ID を表現するために使われます。
+現在、アクティブな Identity に関連付けられたアカウント ID を表示するには、`+dfx ledger account-id+` コマンドを使用します。
+開発者 Identity の Principal のテキストタイプ表現と同様、アカウント ID は秘密鍵から派生したもので、Ledger Canister であなたの ID を表現するために使われます。
 
 === 基本的な利用法
 
@@ -56,7 +56,7 @@ dfx ledger account-id [flag]
 
 === 例
 
-複数の ID を作成した場合、`+dfx identity whoami+` コマンドまたは `+dfx identity get-principal+` コマンドを実行して、現在使用している（ユーザー） ID を確認します。次に、以下のコマンドを実行して、現在選択されている開発者用（ユーザー） ID のアカウント ID を確認できます：
+複数の Identity を作成した場合、`+dfx identity whoami+` コマンドまたは `+dfx identity get-principal+` コマンドを実行して、現在使用している Identity を確認します。次に、以下のコマンドを実行して、現在選択されている開発者 Identity のアカウント ID を確認できます：
 
 [source,bash]
 ----
@@ -99,7 +99,7 @@ dfx ledger --network ic balance [of] [flag]
 [width="100%",cols="<32%,<68%",options="header"]
 |===
 |引数 |説明
-|`+<of>+` |残高を取得するアカウント ID を指定します。指定しない場合は、現在選択されているユーザー ID （に紐づくアカウント）の ICP トークン残高を返します。
+|`+<of>+` |残高を取得するアカウント ID を指定します。指定しない場合は、現在選択されているユーザー Identity （に紐づくアカウント）の ICP トークン残高を返します。
 |===
 
 === 例
@@ -175,7 +175,7 @@ dfx ledger --network ic create-canister tsqwz-udeik-5migd-ehrev-pvoqv-szx2g-akh5
 
 このコマンドは `+--amount+` 引数に指定した ICP トークンの数量を Cycle に変換し、指定した Principal で制御される新しい Canister ID に Cycle を関連付けます。
 
-この例では、コマンドは 1.25 ICP トークンを Cycle に変換し、新しい Canister のコントローラーとして、デフォルトの（ユーザー） ID の Principal ID を指定しています。
+この例では、コマンドは 1.25 ICP トークンを Cycle に変換し、新しい Canister のコントローラーとして、デフォルトの Identity の Principal ID を指定しています。
 
 トランザクションが成功すると、台帳にイベントが記録され、次のような出力が表示されるはずです。
 
@@ -223,7 +223,7 @@ dfx ledger notify [options] _block-height_ _destination-principal_
 |===
 |引数|説明
 |`+<block-height>+` |送信トランザクションが記録されたブロック高を指定します。
-|`+<destination-principal>+` |送信先の Principal を指定します。Canister ID またはユーザー ID の Principal のテキストタイプ表現のいずれかを指定します。
+|`+<destination-principal>+` |送信先の Principal を指定します。Canister ID またはユーザー Identity の Principal のテキストタイプ表現のいずれかを指定します。
 送信トランザクションが `+create-canister+` コマンドの場合は、`+controller+` Principal を指定します。
 送信トランザクションが `+top-up+` コマンドの場合、`+canister ID+` を指定します。
 |===
