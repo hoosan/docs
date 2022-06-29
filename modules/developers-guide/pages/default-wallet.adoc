@@ -1,3 +1,603 @@
+= デフォルトの Cycle ウォレットを使用する
+ifdef::env-github,env-browser[:outfilesuffix:.adoc]
+:proglang: Motoko
+:platform: Internet Computer platform
+:IC: Internet Computer
+:company-id: DFINITY
+
+link:concepts/tokens-cycles{outfilesuffix}[トークンと Cycle] で説明したように、ICP トークンを *Cycle* へ変換し、Canister の操作の動力にできます。
+Cycle は、Dapp が消費する 通信、計算、ストレージ の運用コストを反映したものです。
+
+ICP トークンとは異なり、Cycle は Canister にのみ関連付けられ、ユーザーまたは開発者の Principal には関連付けられません。
+Canister だけが、操作の実行や使用するリソースの支払いに Cycle を必要とし消費するため、ユーザーと開発者は、*Cycle ウォレット* と呼ばれる特別なタイプの Canister を通じて、Cycle の配布と所有権を管理します。Cycle ウォレットは、新しい Canister の作成などの操作に必要な Cycle を保持しているため、これらの操作はユーザー Principal ではなく、Cycle ウォレット の Canister Principal を使用して実行されます。
+
+ローカルの Canister 実行環境を使用する事を目的に、{sdk-short-name} はすべてのプロジェクトであなた用にデフォルトの Cycle ウォレットを自動的に作成し、Cycle ウォレットを使用して実行される操作のほとんどは裏で行われます。
+例えば、Cycles ウォレットは、あなたに代わって、Canister Principal の登録とローカルの Canister 実行環境への Canister のデプロイを代行します。
+
+しかし、本番環境では、Cycle を新規 Canister へ明示的に登録・転送し、カストディアンとして機能できる Principal を指定し、所有権を持つ Principal を適切に管理する必要があります。
+これらのタスクの一部は、ウェブブラウザ上で動作するデフォルトの Cycle ウォレット Dapp を使って実行できます。
+特定のアクションに応じて、ターミナルで `+dfx wallet+` コマンドを実行したり、デフォルトの Cycle ウォレット Canister のメソッドを直接呼び出すことにより、これらの Cycle と Canister の管理タスクを実行できます。
+
+ただし、Cycles ウォレット Canister への呼び出しは、現在選択されているユーザー Identity に関連付けられた Cycles ウォレット Principal を使用して実行されることに留意すべきです。
+現在選択されている Identity と、その Identity に関連する Principal がウォレットのコントローラーまたはカストディアンとして追加されているかどうかによって異なる結果が表示される、または、特定のメソッドへのアクセスが拒否される場合があります。
+
+現在使用している Identity を確認するには、下記コマンドを実行します。
+
+[source,bash]
+----
+dfx identity whoami
+----
+
+== コントローラーとカストディアンのロール
+
+ユーザー Principal または Canister Principal に、*コントローラー* または *カストディアン* ロールを割り当てることができます。
+
+*コントローラー* は最も特権的なロールであり、コントローラーロールに割り当てられた Principal は、下記のような特権的なタスクを実行できます。
+
+* 他の Principal をコントローラーとして追加・削除できます。
+* 他の Principal をカストディアンとして承認・承認解除できます。
+* Cycle ウォレットのアドレス帳に項目を追加できます。
+* Cycle ウォレットの残高と他の全ウォレットの関連情報にアクセスできます。
+* 他の Canister に Cycle を送信できます。
+* 他の Canister から Cycle の受信を受け取れます。
+* Cycle ウォレットの名前を変更できます。
+* Canister と追加の Cycle ウォレットを作成できます。
+
+*カストディアン* ロールに割り当てられた Principal は、下記のような Cycle ウォレット管理タスクのサブセットのみを実行できます。
+
+* Cycle ウォレットの残高とその他のウォレット関連情報にアクセスできます。
+* 他の Canister へ Cycle を送信できます。
+* 他の Canister からの Cycle の受信を受け取れます。
+* Canister を作成できます。
+
+NOTE: Principal にカストディアンとしての権限を与えても、Principal に自動的に Cycle ウォレットへのアクセス権が与えられるわけではありません。カストディアンロールを割り当てられた Identity に、Cycle ウォレットの Principal も割り当てなければなりません。例えば、`+alice_custodian+` という Identity をローカルプロジェクトの Cycle ウォレット（`+rwlgt-iiaaa-aaaaa-cai+`）のカストディアンとして承認する場合、そのユーザーは `+dfx identity set-wallet rwlgt-iiaaa-aaaaa-cai+` コマンドでそのウォレットの使用も割り当てられる必要があるでしょう。
+
+[[wallet-create]]
+== Cycle ウォレットを作成する
+
+ローカルで開発を行っている場合、`+dfx canister create+` を使用して新しい Canister Principal を登録したとき、または `+dfx deploy+` で Canister を登録・ビルド・デプロイしたときに、Cycle ウォレットが作成されます。
+
+{IC} にデプロイする場合、通常、ICP トークンを Cycle に変換し、Cycle を新しい Canister Principal に転送し、デフォルトの Cycle ウォレット WebAssembly モジュール（WASM）で Canister を更新することによって、Cycle ウォレットを作成します。
+
+ICP を Cycle に変換し、新しい Cycle ウォレットを作成するのに役立つ Dapp があります。例えば、link:../token-holders/nns-app-quickstart{outfilesuffix}#_deploy_a_canister_with_cycles[NNS dapp] があります。
+
+[[wallet-check-balance]]
+== Cycle 残高の確認
+
+ローカルの Canister 実行環境 または {IC} 上の Cycle ウォレットでは、`+dfx wallet balance+` コマンドまたは `+wallet_balance+` メソッドを使用して現在の Cycle 残高を確認できます。
+
+=== ローカルで開発する際に、Cycle 残高を確認する
+
+ローカルで開発を行っている場合、`+dfx wallet balance+` コマンドを使用し、プロジェクト単位で現在の Cycle 残高を確認できます。
+
+ローカルプロジェクトで Cycle バランスを確認するには
+
+. ターミナルを開き、プロジェクトのルートディレクトリに移動します。
+. 下記コマンドを実行し、ローカルの Canister 実行環境を起動します。
++
+[source,bash]
+----
+dfx start --background
+----
+. 下記コマンドを実行し、現在選択されている Identity に関連付けられた Cycle ウォレットの Cycle 残高を表示します。
++
+[source,bash]
+----
+dfx wallet balance
+----
++
+このコマンドは、下記のような出力を表示します。
++
+....
+78000000000000 cycles.
+....
+
+=== {IC} 上で Cycle 残高を確認する
+
+{IC} 上に Cycle ウォレットをデプロイした場合、`+dfx wallet balance+` コマンドを使用して、ネットワーク上の現在の Cycle 残高を確認できます。
+
+{IC} の Cycle 残高を確認するには
+
+. ターミナルを開き、設定ファイル `+dfx.json+` が格納されているディレクトリに移動します。
+. 下記コマンドを実行し、{IC} との接続を確認します。
++
+[source,bash]
+----
+dfx ping ic
+----
+. 次のコマンドを実行し、現在選択されている Identity に関連する Cycle ウォレットの Cycle 残高を表示します。
++
+[source,bash]
+----
+dfx wallet --network ic balance
+----
++
+このコマンドは、下記のような出力を表示します。
++
+....
+67991783875995 cycles.
+....
+
+=== Cycle の wallet_balance メソッドを呼び出す
+
+また、Cycle ウォレット Canister の `+wallet_balance+` メソッドを直接呼び出すことで、Cycle 残高を確認できます。
+例えば、Principal が Cycle ウォレット `h5aet-waaaa-aaaab-qaamq-cai` のコントローラーである場合、下記コマンドを実行し、現在の Cycle 残高を確認できます。
+
+....
+dfx canister --network ic call h5aet-waaaa-aaaab-qaamq-cai wallet_balance
+....
+
+このコマンドは、下記のように金額フィールド（ハッシュ 3_573_748_184 で表される）と残高 6,895,656,625,450 Cycle を持つレコードとして Candid 形式を使用して残高を返します。
+
+....
+(record { 3_573_748_184 = 6_895_656_625_450 })
+....
+
+[[wallet-add-controller]]
+== コントローラーを追加する
+
+Cycle ウォレットのコントローラーの場合、他のユーザー Principal または Canister Principal をコントローラーロールに追加できます。
+Principal をコントローラーロールに追加すると、Principal は自動的にカストディアンロールに追加されます。
+
+ローカルプロジェクトの Cycle ウォレットにコントローラーを追加するには
+
+. ターミナルを開き、プロジェクトのルートディレクトリに移動します。
+. 下記コマンドを実行し、ローカルの Canister 実行環境を起動します。
++
+[source,bash]
+----
+dfx start --background
+----
+. 下記のようなコマンドを実行し、現在選択されている Identity に関連付けられた Cycle ウォレットの Cycle 残高を表示します。
++
+[source,bash]
+----
+dfx wallet add-controller <controller-principal>
+----
++
+例えば、Principal b5quc-npdph-l6qp4-kur4u-oxljq-7uddl-vfdo6-x2uo5-6y4a6-4pt6v-7qe で表されるユーザーを、ローカルの Cycle ウォレットのコントローラーとして追加するには、下記コマンドを実行します。
++
+....
+dfx wallet add-controller b5quc-npdph-l6qp4-kur4u-oxljq-7uddl-vfdo6-x2uo5-6y4a6-4pt6v-7qe
+....
++
+このコマンドは、下記のような出力を表示します。
++
+....
+Added b5quc-npdph-l6qp4-kur4u-oxljq-7uddl-vfdo6-x2uo5-6y4a6-4pt6v-7qe as a controller.
+....
+
+////
+コメントにつき翻訳せず
+=== Call the add_controllers method
+
+As an alternative to running the `+dfx wallet add-controller+` command, you can call the `add_controllers` method directly to add a principal as a controller of the cycles wallet.
+
+For example:
+
+....
+dfx canister --network ic call f3yw6-7qaaa-aaaab-qaabq-cai add_controller '(principal "vpqee-nujda-46rtu-4noo7-qnxmb-zqs7g-5gvqf-4gy7t-vuprx-u2urx-gqe")'
+....
+
+In this example, the principal for the currently-active identity is a controller of the `+f3yw6-7qaaa-aaaab-qaabq-cai+` cycles wallet.
+
+To make the cycles wallet a controller of itself, you would run a command similar to the following:
+
+....
+dfx canister --network ic call f3yw6-7qaaa-aaaab-qaabq-cai add_controller '(principal "f3yw6-7qaaa-aaaab-qaabq-cai")'
+....
+////
+
+[[wallet-get-controllers]]
+== 現在のコントローラーを一覧表示する
+
+`+dfx wallet controllers+` コマンド または `get_controllers` メソッドを使用することで、指定した Cycle ウォレット Canister を完全に制御する Principal を一覧表示できます。
+
+ローカルプロジェクトで Cycle ウォレットのコントローラーを一覧表示するには
+
+. ターミナルを開き、プロジェクトのルートディレクトリに移動します。
+. 下記コマンドを実行し、ローカルの Canister 実行環境を起動します。
++
+[source,bash]
+----
+dfx start --background
+----
+. 下記コマンドを実行し、現在のプロジェクトで Cycle ウォレットを完全に制御している Principal を一覧表示します。
++
+[source,bash]
+----
+dfx wallet controllers
+----
++
+このコマンドは、Cycle ウォレットを制御する Principal のテキスト表現を、下記のような出力で表示します。
++
+....
+tsqwz-udeik-5migd-ehrev-pvoqv-szx2g-akh5s-fkyqc-zy6q7-snav6-uqe
+b5quc-npdph-l6qp4-kur4u-oxljq-7uddl-vfdo6-x2uo5-6y4a6-4pt6v-7qe
+....
+
+////
+コメントにつき翻訳せず
+=== Call the get_controllers method
+
+For example:
+
+....
+dfx canister --network  call f3yw6-7qaaa-aaaab-qaabq-cai get_controllers
+....
+
+The command returns a list of principals similar to the following:
+
+....
+(
+  vec {
+    principal "zen7w-sjxmx-jcslx-ey4hf-rfxdq-l4soz-7ie3o-hti3o-nyoma-nrkwa-cqe";
+    principal "vpqee-nujda-46rtu-4noo7-qnxmb-zqs7g-5gvqf-4gy7t-vuprx-u2urx-gqe";
+  },
+)
+....
+////
+
+[[wallet-remove-controller]]
+== コントローラーを削除する
+
+コントローラーとしての Principal の削除するには、 `+dfx wallet remove-controller+` コマンドまたは `+remove_controller+` メソッドを使用します。
+
+ローカルプロジェクトの Cycle ウォレットのコントローラーを削除するには
+
+. ターミナルを開き、プロジェクトのルートディレクトリに移動します。
+. 下記コマンドを実行し、ローカルの Canister 実行環境を起動します。
++
+[source,bash]
+----
+dfx start --background
+----
+. 下記のようなコマンドを実行し、現在のプロジェクトのコントローラーロールから削除する Principal を指定します。
++
+[source,bash]
+----
+dfx wallet remove-controller b5quc-npdph-l6qp4-kur4u-oxljq-7uddl-vfdo6-x2uo5-6y4a6-4pt6v-7qe
+----
++
+このコマンドにより下記のように出力されます。
++
+....
+Removed b5quc-npdph-l6qp4-kur4u-oxljq-7uddl-vfdo6-x2uo5-6y4a6-4pt6v-7qe as a controller.
+....
+
+////
+コメントにつき翻訳せず
+Use the `remove-controller` method to remove a principal as a controller.
+
+For example:
+
+....
+dfx canister --network ic call f3yw6-7qaaa-aaaab-qaabq-cai remove_controller '(principal "zdm3q-uxmkz-lsghp-r737v-dgwav-rinn2-hs3zf-fnib3-2rylb-3kuek-hae")'
+....
+////
+
+[[wallet-authorize]]
+== カストディアンを承認する
+
+`+dfx wallet authorize+` コマンド または `+authorize+` メソッドを使用すると、Principal を Cycle ウォレットのカストディアンとして承認できます。
+
+ローカルプロジェクトにおける Cycle ウォレットのカストディアンとして Principal を承認するには
+
+. ターミナルを開き、プロジェクトのルートディレクトリに移動します。
+. 下記コマンドを実行し、ローカルの Canister 実行環境を起動します。
++
+[source,bash]
+----
+dfx start --background
+----
+. 下記のようなコマンドを実行し、現在のプロジェクトおよび現在の Identity のカストディアンとして認証する Principal を指定します。
++
+[source,bash]
+----
+dfx wallet authorize b5quc-npdph-l6qp4-kur4u-oxljq-7uddl-vfdo6-x2uo5-6y4a6-4pt6v-7qe
+----
++
+このコマンドにより下記のように出力されます。
++
+....
+Authorized b5quc-npdph-l6qp4-kur4u-oxljq-7uddl-vfdo6-x2uo5-6y4a6-4pt6v-7qe as a custodian.
+....
+
+////
+コメントにつき翻訳せず
+For example:
+
+....
+dfx canister --network ic call f3yw6-7qaaa-aaaab-qaabq-cai authorize '(principal "zdm3q-uxmkz-lsghp-r737v-dgwav-rinn2-hs3zf-fnib3-2rylb-3kuek-hae")'
+....
+////
+
+[[wallet-get-custodian]]
+== 現在のカストディアンを一覧表示する
+
+`+dfx wallet custodians+` コマンド または `+get_custodians+` メソッドを使用すると、Cycle ウォレットのカストディアンとして現在定義されている Principal の一覧を返せます。
+
+ローカルプロジェクトで Cycle ウォレットのカストディアンを一覧表示するには
+
+. ターミナルを開き、プロジェクトのルートディレクトリに移動します。
+. 下記コマンドを実行し、ローカルの Canister 実行環境を起動します。
++
+[source,bash]
+----
+dfx start --background
+----
+. 下記コマンドを実行し、現在のプロジェクトで Cycle ウォレットのカストディアンロールを持つ Principal を一覧表示してください。
++
+[source,bash]
+----
+dfx wallet custodians
+----
++
+このコマンドは、下記のような出力を表示します。
++
+....
+tsqwz-udeik-5migd-ehrev-pvoqv-szx2g-akh5s-fkyqc-zy6q7-snav6-uqe
+b5quc-npdph-l6qp4-kur4u-oxljq-7uddl-vfdo6-x2uo5-6y4a6-4pt6v-7qe
+....
+
+////
+コメントにつき翻訳せず
+....
+dfx canister --network ic call f3yw6-7qaaa-aaaab-qaabq-cai get_custodians
+....
+
+The command returns a list of principals similar to the following:
+
+....
+(
+  vec {
+    principal "zen7w-sjxmx-jcslx-ey4hf-rfxdq-l4soz-7ie3o-hti3o-nyoma-nrkwa-cqe";
+    principal "uymke-5ldqg-w6g7u-qjvng-efsfp-t45m2-tekqj-xvjel-57yv2-hpsdl-zqe";
+    principal "vpqee-nujda-46rtu-4noo7-qnxmb-zqs7g-5gvqf-4gy7t-vuprx-u2urx-gqe";
+  },
+)
+....
+////
+
+[[wallet-deauthorize]]
+== カストディアンの認証を削除する
+
+`+dfx wallet deauthorize+` コマンド または `+deauthorize+` メソッドを使用して、Cycle ウォレットのカストディアンとして Principal を削除できます。
+以前にコントローラーとして追加された Principal の認証を解除すると、Principal も自動的にコントローラーロールからも削除されます。
+
+ローカルプロジェクトにある Cycle ウォレットのカストディアンを削除するには
+
+. ターミナルを開き、プロジェクトのルートディレクトリに移動します。
+. 下記コマンドを実行し、ローカルの Canister 実行環境を起動します。
++
+[source,bash]
+----
+dfx start --background
+----
+. 下記のようなコマンドを実行し、現在のプロジェクトのカストディアンロールから削除する Principal を指定します。
++
+[source,bash]
+----
+dfx wallet deauthorize b5quc-npdph-l6qp4-kur4u-oxljq-7uddl-vfdo6-x2uo5-6y4a6-4pt6v-7qe
+----
++
+このコマンドにより下記のように出力されます。
++
+....
+Deauthorized b5quc-npdph-l6qp4-kur4u-oxljq-7uddl-vfdo6-x2uo5-6y4a6-4pt6v-7qe as a custodian.
+....
+
+////
+コメントにつき翻訳せず
+For example:
+
+....
+dfx canister --network ic call f3yw6-7qaaa-aaaab-qaabq-cai deauthorize '(principal "zdm3q-uxmkz-lsghp-r737v-dgwav-rinn2-hs3zf-fnib3-2rylb-3kuek-hae")'
+....
+////
+
+[[wallet-send]]
+== Canister へ Cycle を送る
+
+`+wallet_send+` メソッドの `+dfx wallet send+` コマンドを使用すると、特定の Canister に特定の Cycle 数を送信できます。
+指定する Canister は Cycle ウォレットであるか、Cycle を受け取るための `+wallet_receive+` メソッドがなければならないことに注意してください。
+
+{IC} 上に Cycle ウォレットをデプロイした場合、`+dfx wallet send+`コマンドを使用して Canister 間で Cycle を送信できます。
+
+{IC} で動作している別の Canister へ Cycle を送信するには
+
+. ターミナルを開き、設定ファイル `+dfx.json+` が格納されているディレクトリに移動してください。
+. 下記コマンドを実行し、{IC} との接続を確認してください。
++
+[source,bash]
+----
+dfx ping ic
+----
+. Cycle を受け取りたい Canister の Principal を入手します。
++
+例えば、下記コマンドを実行すると、{IC} 上の現在のユーザー Identity に関連付けられた Cycle ウォレット Principal が表示されます。
++
+[source,bash]
+----
+dfx identity --network ic get-wallet
+----
++
+このコマンドは、Cycle ウォレット Principal を下記のような出力で表示します。
++
+....
+gastn-uqaaa-aaaae-aaafq-cai
+....
+. 下記のようなコマンドを実行し、Canister へ Cycle を送信します。
++
+[source,bash]
+----
+dfx wallet --network ic send <destination> <amount>
+----
++
+例えば、下記です。
++
+....
+dfx wallet --network ic send gastn-uqaaa-aaaae-aaafq-cai 10000000000
+....
+転送に成功した場合、このコマンドは何も出力を表示しません。
++
+
+NOTE: Cycle ウォレットに保存できる Cycle の最大数は、2^128^ です。
+
+. 下記コマンドを実行し、Cycle ウォレットの残高を確認し、利用可能な Cycle の最新の数を確認できます。
++
+[source,bash]
+----
+dfx wallet --network ic balance
+----
++
+例えば、下記です。
++
+....
+67991699387090 cycles.
+....
+
+////
+コメントにつき翻訳せず
+For example, if you attempt to send cycles to the hello canister (`hbe6c-baaaa-aaaab-qaaoq-cai`) using a command like this:
+
+....
+dfx canister --network ic call f3yw6-7qaaa-aaaab-qaabq-cai wallet_send '(record { canister = principal "hbe6c-baaaa-aaaab-qaaoq-cai";amount=2000000000000:nat64;})'
+....
+
+You'll see an error message similar to this:
+
+....
+Canister hbe6c-baaaa-aaaab-qaaoq-cai has no update method 'wallet_receive'
+....
+
+If you call the method to send the cycles to a cycles wallet, however, the command succeeds:
+
+....
+dfx canister --network ic call f3yw6-7qaaa-aaaab-qaabq-cai wallet_send '(record { canister = principal "h5aet-waaaa-aaaab-qaamq-cai";amount=2000000000000:nat64;})'
+....
+////
+
+== アドレス帳の項目を一覧表示する
+
+`+dfx wallet addresses+` コマンドまたは `+list_addresses+` メソッドを使用し、Cycle ウォレットに設定されている Principal とロールを一覧表示できます。
+
+{IC} 上で動作している Cycle ウォレットのアドレス帳の項目を表示するには
+
+. ターミナルを開き、設定ファイル `+dfx.json+` が格納されているディレクトリに移動してください。
+. 下記コマンドを実行し、{IC} との接続を確認してください。
++
+[source,bash]
+----
+dfx ping ic
+----
+. 下記コマンドを実行し、Cycle ウォレットのアドレス帳の項目を取得します。
++
+[source,bash]
+----
+dfx wallet --network ic addresses
+----
++
+このコマンドは、Cycle ウォレットのコントローラーとカストディアンを下記のような出力で表示します。
++
+....
+Id: tsqwz-udeik-5migd-ehrev-pvoqv-szx2g-akh5s-fkyqc-zy6q7-snav6-uqe, Kind: Unknown, Role: Controller, Name: No name set.
+Id: ejta3-neil3-qek6c-i7rdw-sxreh-lypfe-v6hjg-6so7x-5ugze-3iohr-2qe, Kind: Unknown, Role: Custodian, Name: No name set.
+Id: b5quc-npdph-l6qp4-kur4u-oxljq-7uddl-vfdo6-x2uo5-6y4a6-4pt6v-7qe, Kind: Unknown, Role: Controller, Name: No name set.
+....
+
+== デフォルトの Cycle ウォレットの付加的なメソッド
+
+デフォルトの Cycle ウォレット Canister には、`+dfx wallet+` コマンドとして公開されていない付加的なメソッドが含まれています。
+付加的なメソッドは、新しい Canister の作成やイベントの管理など、より高度な Cycle 管理タスクをサポートします。
+
+[[wallet-create-wallets]]
+=== 新しい Cycle ウォレットの作成
+
+初期の Cycle 残高とオプションで特定の Principal をコントローラーとして持つ、新しい Cycle ウォレット Canister を作成するには、`+wallet_create_wallet+` メソッドを使用してください。
+コントロールする Principal を指定しない場合、新しいウォレットの作成に使用した Cycle ウォレットが新しいウォレットのコントローラーになるでしょう。
+
+例えば、下記のようなコマンドを実行し、新しいウォレットを作成し、Principal をコントローラーとして割り当てることができます。
+
+....
+dfx canister --network  call f3yw6-7qaaa-aaaab-qaabq-cai wallet_create_wallet '(record { cycles = 5000000000000 : nat64; controller = principal "vpqee-nujda-46rtu-4noo7-qnxmb-zqs7g-5gvqf-4gy7t-vuprx-u2urx-gqe"})'
+....
+
+このコマンドは、新しいウォレットの Principal を返します。
+
+....
+(record { 1_313_628_723 = principal "dcxxq-jqaaa-aaaab-qaavq-cai" })
+....
+
+[[wallet-create-canister]]
+=== 新しい Canister Principal の登録
+
+新しい Canister Principal を {IC} に登録するには、`wallet_create_canister` メソッドを使用します。
+このメソッドは、新しい「空の」Canister プレースホルダーを初期の Cycle 残高で作成し、オプションで特定の Principal をそのコントローラーにします。
+Canister の Principal を登録した後、別の手順で Canister 用のコードをインストールできます。
+
+例えば、下記のようなコマンドを実行し、新しい Canister を作成し、Principal をコントローラーとして割り当てることができます。
+
+....
+dfx canister --network=ic call f3yw6-7qaaa-aaaab-qaabq-cai wallet_create_canister '(record{cycles = 5000000000000 : nat64; settings = record{controller = principal "vpqee-nujda-46rtu-4noo7-qnxmb-zqs7g-5gvqf-4gy7t-vuprx-u2urx-gqe"}})'
+....
+
+このコマンドは、作成した新しい Canister の Principal を返します。
+
+....
+(record { 1_313_628_723 = principal "dxqg5-iyaaa-aaaab-qaawa-cai" })
+....
+
+[[wallet-receive]]
+=== Canister から Cycle を受信する
+
+Cycle を受け取るためのエンドポイントとして `wallet_receive` メソッドを使用します。
+
+[[wallet-call]]
+=== ウォレットからの呼び出しを転送する
+
+呼び出し元として Cycle ウォレット Principal を使用して呼び出しを転送するには、 `wallet_call` メソッドを使用します。
+
+[[wallet-addresses]]
+=== アドレスを管理する
+
+アドレス帳の項目を管理するには、下記のメソッドを使用します。
+
+* `add_address`: (address: AddressEntry) -> ();
+* `remove_address`: (address: principal) -> ();
+
+[[events]]
+=== イベントを管理する
+
+イベントとチャートの情報を取得するには、下記のメソッドを使用します。
+
+* `get_events`: (opt record { from: opt nat32; to: opt nat32; }) -> (vec Event) query;
+* `get_chart`: (opt record { count: opt nat32; precision: opt nat64; } ) -> (vec record { nat64; nat64; }) query;
+
+例えば、下記のようなコマンドを実行し、 `+get_events+` メソッドを使用して、 `+canister_create+` などのイベントを返せます。
+
+[source,bash]
+----
+dfx canister call <cycles-wallet-principal> get_events '(record {from = null; to = null})'
+----
+
+Cycle ウォレット（`+gastn-uqaaa-aaaaafq-cai+`）が {IC} のメインネットワーク上にデプロイされている場合、下記のようなコマンドを実行しイベントを返せます。
+
+....
+dfx canister --network ic call gastn-uqaaa-aaaae-aaafq-cai get_events '(record {from = null; to = null})'
+....
+
+このコマンドの出力は、下記のような Candid 形式です。
+
+....
+(
+  vec { record { 23_515 = 0; 1_191_829_844 = variant { 4_271_600_268 = record { 23_515 = principal "tsqwz-udeik-5migd-ehrev-pvoqv-szx2g-akh5s-fkyqc-zy6q7-snav6-uqe"; 1_224_700_491 = null; 1_269_754_742 = variant { 4_218_395_836 };} }; 2_781_795_542 = 1_621_456_688_636_513_683;}; record { 23_515 = 1; 1_191_829_844 = variant { 4_271_600_268 = record { 23_515 = principal "ejta3-neil3-qek6c-i7rdw-sxreh-lypfe-v6hjg-6so7x-5ugze-3iohr-2qe"; 1_224_700_491 = null; 1_269_754_742 = variant { 2_494_206_670 };} }; 2_781_795_542 = 1_621_461_468_638_569_551;}; record { 23_515 = 2; 1_191_829_844 = variant { 1_205_528_161 = record { 2_190_693_645 = 11_000_000_000_000; 2_631_180_839 = principal "gvvca-vyaaa-aaaae-aaaga-cai";} }; 2_781_795_542 = 1_621_462_573_993_647_258;}; record { 23_515 = 3; 1_191_829_844 = variant { 1_205_528_161 = record { 2_190_693_645 = 11_000_000_000_000; 2_631_180_839 = principal "gsueu-yaaaa-aaaae-aaagq-cai";} }; 2_781_795_542 = 1_621_462_579_193_578_440;}; record { 23_515 = 4; 1_191_829_844 = variant { 1_955_698_212 = record { 2_190_693_645 = 0; 2_374_371_241 = "install_code"; 2_631_180_839 = principal "aaaaa-aa";} }; 2_781_795_542 = 1_621_462_593_047_590_026;}; record { 23_515 = 5; 1_191_829_844 = variant { 1_955_698_212 = record { 2_190_693_645 = 0; 2_374_371_241 = "install_code"; 2_631_180_839 = principal "aaaaa-aa";} }; 2_781_795_542 = 1_621_462_605_779_157_885;}; record { 23_515 = 6; 1_191_829_844 = variant { 1_955_698_212 = record { 2_190_693_645 = 0; 2_374_371_241 = "authorize"; 2_631_180_839 = principal "gsueu-yaaaa-aaaae-aaagq-cai";} }; 2_781_795_542 = 1_621_462_609_036_146_536;}; record { 23_515 = 7; 1_191_829_844 = variant { 1_955_698_212 = record { 2_190_693_645 = 0; 2_374_371_241 = "greet"; 2_631_180_839 = principal "gvvca-vyaaa-aaaae-aaaga-cai";} }; 2_781_795_542 = 1_621_463_144_066_333_270;}; record { 23_515 = 8; 1_191_829_844 = variant { 4_271_600_268 = record { 23_515 = principal "ejta3-neil3-qek6c-i7rdw-sxreh-lypfe-v6hjg-6so7x-5ugze-3iohr-2qe"; 1_224_700_491 = null; 1_269_754_742 = variant { 2_494_206_670 };} }; 2_781_795_542 = 1_621_463_212_828_477_570;}; record { 23_515 = 9; 1_191_829_844 = variant { 1_955_698_212 = record { 2_190_693_645 = 0; 2_374_371_241 = "wallet_balance"; 2_631_180_839 = principal "gastn-uqaaa-aaaae-aaafq-cai";} }; 2_781_795_542 = 1_621_878_637_071_884_946;}; record { 23_515 = 10; 1_191_829_844 = variant { 4_271_600_268 = record { 23_515 = principal "b5quc-npdph-l6qp4-kur4u-oxljq-7uddl-vfdo6-x2uo5-6y4a6-4pt6v-7qe"; 1_224_700_491 = null; 1_269_754_742 = variant { 4_218_395_836 };} }; 2_781_795_542 = 1_621_879_473_916_547_313;}; record { 23_515 = 11; 1_191_829_844 = variant { 313_999_214 = record { 1_136_829_802 = principal "gastn-uqaaa-aaaae-aaafq-cai"; 3_573_748_184 = 10_000_000_000;} }; 2_781_795_542 = 1_621_977_470_023_492_664;}; record { 23_515 = 12; 1_191_829_844 = variant { 2_171_739_429 = record { 25_979 = principal "gastn-uqaaa-aaaae-aaafq-cai"; 3_573_748_184 = 10_000_000_000; 4_293_698_680 = 0;} }; 2_781_795_542 = 1_621_977_470_858_839_320;};},
+)
+....
+
+この例では、12 個のイベントレコードがあります。ロールフィールド（ハッシュ `+1_269_754_742+` で表される）は、 Principal がコントローラー（ハッシュ `+4_218_395_836+`）なのかカストディアン（ハッシュ `+2_494_206_670+` で表される）なのかを明記しています。また、この例のイベントは、10,000,000,000 Cycle の転送を伴う金額フィールド（ハッシュ `+3_573_748_184+` で表される）を例示しています。
+
+////
 = Use the default cycles wallet
 ifdef::env-github,env-browser[:outfilesuffix:.adoc]
 :proglang: Motoko
@@ -170,6 +770,7 @@ Added b5quc-npdph-l6qp4-kur4u-oxljq-7uddl-vfdo6-x2uo5-6y4a6-4pt6v-7qe as a contr
 ....
 
 ////
+////
 === Call the add_controllers method
 
 As an alternative to running the `+dfx wallet add-controller+` command, you can call the `add_controllers` method directly to add a principal as a controller of the cycles wallet.
@@ -187,6 +788,7 @@ To make the cycles wallet a controller of itself, you would run a command simila
 ....
 dfx canister --network ic call f3yw6-7qaaa-aaaab-qaabq-cai add_controller '(principal "f3yw6-7qaaa-aaaab-qaabq-cai")'
 ....
+////
 ////
 
 [[wallet-get-controllers]]
@@ -218,6 +820,7 @@ b5quc-npdph-l6qp4-kur4u-oxljq-7uddl-vfdo6-x2uo5-6y4a6-4pt6v-7qe
 ....
 
 ////
+////
 === Call the get_controllers method
 
 For example:
@@ -236,6 +839,7 @@ The command returns a list of principals similar to the following:
   },
 )
 ....
+////
 ////
 
 [[wallet-remove-controller]]
@@ -266,6 +870,7 @@ Removed b5quc-npdph-l6qp4-kur4u-oxljq-7uddl-vfdo6-x2uo5-6y4a6-4pt6v-7qe as a con
 ....
 
 ////
+////
 Use the `remove-controller` method to remove a principal as a controller.
 
 For example:
@@ -273,6 +878,7 @@ For example:
 ....
 dfx canister --network ic call f3yw6-7qaaa-aaaab-qaabq-cai remove_controller '(principal "zdm3q-uxmkz-lsghp-r737v-dgwav-rinn2-hs3zf-fnib3-2rylb-3kuek-hae")'
 ....
+////
 ////
 
 [[wallet-authorize]]
@@ -303,11 +909,13 @@ Authorized b5quc-npdph-l6qp4-kur4u-oxljq-7uddl-vfdo6-x2uo5-6y4a6-4pt6v-7qe as a 
 ....
 
 ////
+////
 For example:
 
 ....
 dfx canister --network ic call f3yw6-7qaaa-aaaab-qaabq-cai authorize '(principal "zdm3q-uxmkz-lsghp-r737v-dgwav-rinn2-hs3zf-fnib3-2rylb-3kuek-hae")'
 ....
+////
 ////
 
 [[wallet-get-custodian]]
@@ -339,6 +947,7 @@ b5quc-npdph-l6qp4-kur4u-oxljq-7uddl-vfdo6-x2uo5-6y4a6-4pt6v-7qe
 ....
 
 ////
+////
 ....
 dfx canister --network ic call f3yw6-7qaaa-aaaab-qaabq-cai get_custodians
 ....
@@ -354,6 +963,7 @@ The command returns a list of principals similar to the following:
   },
 )
 ....
+////
 ////
 
 [[wallet-deauthorize]]
@@ -385,11 +995,13 @@ Deauthorized b5quc-npdph-l6qp4-kur4u-oxljq-7uddl-vfdo6-x2uo5-6y4a6-4pt6v-7qe as 
 ....
 
 ////
+////
 For example:
 
 ....
 dfx canister --network ic call f3yw6-7qaaa-aaaab-qaabq-cai deauthorize '(principal "zdm3q-uxmkz-lsghp-r737v-dgwav-rinn2-hs3zf-fnib3-2rylb-3kuek-hae")'
 ....
+////
 ////
 
 [[wallet-send]]
@@ -453,6 +1065,7 @@ For example:
 ....
 
 ////
+////
 For example, if you attempt to send cycles to the hello canister (`hbe6c-baaaa-aaaab-qaaoq-cai`) using a command like this:
 
 ....
@@ -470,6 +1083,7 @@ If you call the method to send the cycles to a cycles wallet, however, the comma
 ....
 dfx canister --network ic call f3yw6-7qaaa-aaaab-qaabq-cai wallet_send '(record { canister = principal "h5aet-waaaa-aaaab-qaamq-cai";amount=2000000000000:nat64;})'
 ....
+////
 ////
 
 == List address book entries
@@ -590,3 +1204,4 @@ The output from the command is in Candid format similar to the following:
 ....
 
 In this example, there are twelve event records. The Role field (represented by the hash `+1_269_754_742+`) specifies whether a principal is a controller (represented by the hash `+4_218_395_836+`) or a custodian (represented by the hash `+2_494_206_670+`). The events in this example also illustrate an amount field (represented by the hash `+3_573_748_184+`) with a transfer of 10,000,000,000 cycles.
+////
