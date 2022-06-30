@@ -1,5 +1,69 @@
 = dfx new
 
+`+dfx new+` コマンドを使用すると、{platform} 用に新しいプロジェクトを作成することができます。
+このコマンドはデフォルトのプロジェクト構成を作成し、テンプレートファイルを作成するので、自分のアプリケーションに合うように変更できます。
+作成するプロジェクトの名前を指定する必要があります。
+
+また、`+--dry-run+` オプションを使用すると、作成されるディレクトリやファイルをファイルシステムに追加することなく、プレビューを生成します。
+
+== 基本的な利用法
+
+[source,bash]
+----
+dfx new _project_name_ [flag]
+----
+
+== フラグ
+
+`+dfx new+` コマンドでは、以下のオプションフラグを使用することができます：
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+--dry-run+` |新規プロジェクトに作成されるディレクトリやファイルをファイルシステムに追加することなく、プレビューを生成します。
+
+| `+--frontend+` |デフォルトのプロジェクト Canister のテンプレートフロントエンドコードをインストールします。
+このフラグのデフォルト値は `+node.js+` が現在ローカルコンピュータにインストールされている場合、 `+true+` となります。
+もし `+node.js+` が現在インストールされていない場合、このフラグを `+true+` に設定すると、プロジェクトの作成時に `+node.js+` とテンプレートファイルをインストールしようとします。また、フラグを `+false+` に設定するとテンプレートフロントエンドコードを完全にスキップできます。
+
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+== 引数
+
+`+dfx new+` コマンドには、以下の引数を指定する必要があります。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|引数 |説明
+|`+project_name+` |作成するプロジェクトの名前を指定します。
+この引数は必須です。 |
+|===
+
+== 例
+
+以下のコマンドを実行することで、`+dfx new+` を使って `+my_social_network+` という名前の新しいプロジェクトを作成することができます：
+
+[source,bash]
+----
+dfx new my_social_network
+----
+
+このコマンドは新しいプロジェクトを作成し、新しいプロジェクト名の下にデフォルトのプロジェクトディレクトリ構成とプロジェクト用の Git リポジトリを作成します。
+
+作成されるディレクトリとファイルをファイルシステムに追加せずにプレビューしたい場合は、次のコマンドを実行します：
+
+[source,bash]
+----
+dfx new my_social_network --dry-run
+----
+
+
+
+////
+= dfx new
+
 Use the `+dfx new+` command to create a new project for the {platform}.
 This command creates a default project structure with template files that you can modify to suit your dapp.
 You must specify the name of the project to you want to create.
@@ -59,3 +123,7 @@ If you want to preview the directories and files to be created without adding th
 ----
 dfx new my_social_network --dry-run
 ----
+
+
+
+////
