@@ -4,6 +4,157 @@ ifdef::env-github,env-browser[:outfilesuffix:.adoc]
 :IC: Internet Computer
 :company-id: DFINITY
 
+DFINITY コマンドライン実行環境（ `+dfx+` ）は {platform} 用に開発した Dapps を作成、デプロイ、管理するための主要なツールです。
+
+親コマンドである `+dfx+` とフラグ、サブコマンドを使用し、オプションの引数の有無に関わらず実行したい処理を指定します。
+
+== 基本的な利用法
+
+[source,bash]
+----
+dfx [option] [subcommand] [flag]
+----
+
+== フラグ
+
+以下のオプションフラグは `+dfx+` の親コマンド、または `+dfx+` のサブコマンドで使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-q+``, `+--quiet+` |情報提供のメッセージを表示しないようにします。
+|`+-v+`, `+--verbose+` |操作に関する詳細情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+== オプション
+
+`+dfx+` コマンドでは、以下のオプションを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header",]
+|===
+|オプション |説明
+
+|`+--identity <identity>+` |コマンド実行時に使用するユーザー Identity を指定します。
+
+|`+--logfile <logfile>+` |ログオプション `+--log file+` を使用している場合、指定されたログファイル名にログファイルのメッセージを書き込みます。
+
+|`+--log <logmode>+` |使用するログモードを指定します。
+
++ ログモードは以下のいずれかに設定することができます：
+
+- `+stderr+` は標準エラー機能にメッセージを記録します。
+
+- `+tee+` は標準出力と指定したファイル名の両方にメッセージを書き込むことができます。
+
+- `+file+` は指定されたファイル名にメッセージを書き込みます。
+
+デフォルトのログモードは `+stderr+` です。
+|===
+
+== サブコマンド
+
+実行したい操作を指定したり、特定のコマンドの使用情報を表示したりするには、次のサブコマンドを使用します。
+
+参考情報および例については、適切なサブコマンドを選択してください。
+
+[width="100%",cols="<32%,<68%",options="header",]
+|===
+|コマンド |説明
+|link:dfx-build{outfilesuffix}[`+build+`] |プロジェクト内のソースコードから Canister 出力をビルドします。
+
+|link:dfx-cache{outfilesuffix}[`+cache+`] |ローカルコンピュータの `+dfx+` キャッシュを管理します。
+|link:dfx-canister{outfilesuffix}[`+canister+`] |デプロイされた Canister を管理します。
+
+|link:dfx-config{outfilesuffix}[`+config+`] |現在のプロジェクトの設定オプションを設定、または変更します。
+
+|link:dfx-deploy{outfilesuffix}[`+deploy+`] |プロジェクト内のコードから、すべてまたは特定の Canister をデプロイします。
+デフォルトでは、すべての Canister がデプロイされます。
+
+|link:dfx-help{outfilesuffix}[`+help+`] |指定したサブコマンドの使用情報を表示します。
+
+|link:dfx-identity{outfilesuffix}[`+identity+`] |{platform} との通信に使用する Identity を作成・管理します。
+
+|link:dfx-ledger{outfilesuffix}[`+ledger+`] |{IC} 上で動作している台帳 Canister のアカウントと対話します。
+|link:dfx-new{outfilesuffix}[`+new+`] |新しいプロジェクトを作成します。
+|link:dfx-ping{outfilesuffix}[`+ping+`] |{platform} またはローカルの Canister 実行環境への送信・応答でネットワーク接続を判断します。
+接続に成功した場合は、ステータス・リプライが返されます。
+
+|link:dfx-replica{outfilesuffix}[`+replica+`] |ローカル Canister の実行環境を起動します。
+
+|link:dfx-start{outfilesuffix}[`+start+`] |現在のプロジェクトの Web サーバーであるローカル Canister 実行環境を起動します。
+
+|link:dfx-stop{outfilesuffix}[`+stop+`] |ローカル Canister の実行環境を停止します。
+
+|link:dfx-upgrade{outfilesuffix}[`+upgrade+`] |ローカルコンピューターにインストールされている `+dfx+` のバージョンを、利用可能な最新のバージョンにアップグレードします。
+
+|link:dfx-wallet{outfilesuffix}[`+dfx wallet+`] |現在選択されている Identity に関連付けられたデフォルトの Cycle ウォレットの Cycle、コントローラー、カストディアン、アドレスを管理できるようにします。
+
+|===
+
+== 例
+
+親コマンドである `+dfx+` を使用すると、使用状況やバージョン情報を表示することができます。
+例えば、現在インストールされている `+dfx+` のバージョンに関する情報を表示するには、次のコマンドを実行します：
+[source,bash]
+----
+dfx --version
+----
+
+特定のサブコマンドの使用情報を見るには、そのサブコマンドと `+--help+` フラグを指定します。
+例えば、`+dfx build+` の使用情報を見るには、以下のコマンドを実行します：
+
+[source,bash]
+----
+dfx build --help
+----
+
+=== ログオプションの使用
+
+`+--verbose+` および `+--quiet+` フラグを使用すると、ログレベルを増減させることができます。
+ログレベルを指定しない場合、デフォルトでは CRITICAL, ERROR, WARNING, INFO メッセージがログに記録されます。
+ verbose フラグ（ `+-v+` ）を1つ指定すると、ログレベルが上がり、DEBUG メッセージが含まれるようになります。
+2つの verbose フラグ（ `+-vv+` ）を指定すると、DEBUG と TRACE の両方のメッセージを含み、ログレベルが上がります。
+
+`+quiet+` フラグを追加すると、ログのレベルが下がります。
+例えば、すべてのメッセージを削除するには、以下のようなコマンドを実行します：
+
+[source,bash]
+----
+dfx -qqqq build
+----
+
+TRACE レベルのログ（ `+--vv+` ）を使用すると、パフォーマンスに影響する多くのログメッセージが生成されるので、トラブルシューティングや分析に必要な場合のみ使用することに留意してください。
+
+新しいプロジェクトを作成するときに、ログメッセージを `newlog.txt` という名前のファイルに出力して、ターミナルに表示するには、以下のようなコマンドを実行します：
+
+[source,bash]
+----
+dfx --log tee --logfile newlog.txt new hello_world
+----
+
+=== ユーザー Identity の指定
+
+`+dfx identity new+` コマンドでユーザー Identity を作成すると、`+--identity+` というコメントラインオプションを使用して、他の `+dfx+` コマンドを実行する際にユーザーコンテキストを変更することができるようになります。
+
+最も一般的な使用例としては、`+--identity+` オプションを使用して、特定の Canister 関数を呼び出し、特定の操作に対するアクセス制御をテストすることができます。
+
+例えば、`+devops+` ユーザ Identity で `+accounts+` Canister の `+modify_profile+` 関数を呼び出せるかどうかを、以下のコマンドを実行してテストすることができます：
+
+....
+dfx --identity devops canister call accounts modify_profile '("Kris Smith")'
+....
+
+
+
+////
+= dfx
+ifdef::env-github,env-browser[:outfilesuffix:.adoc]
+:proglang: Motoko
+:IC: Internet Computer
+:company-id: DFINITY
+
 The DFINITY command-line execution environment (`+dfx+`) is the primary tool for creating, deploying, and managing the dapps you develop for the {platform}.
 
 Use the `+dfx+` parent command with flags and subcommands to specify the operations you want to perform with or without optional arguments.
@@ -149,3 +300,7 @@ For example, you might want to test whether the `+devops+` user identity can cal
 ....
 dfx --identity devops canister call accounts modify_profile '("Kris Smith")'
 ....
+
+
+
+////
