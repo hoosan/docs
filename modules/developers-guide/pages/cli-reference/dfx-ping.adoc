@@ -1,5 +1,62 @@
 = dfx ping
 
+`+dfx ping+` コマンドを使用すると、{platform} やテストネットへの接続を確認することができます。
+このコマンドではデプロイ先の環境に接続できるかどうかを確認することができます。
+
+このコマンドはプロジェクトのディレクトリ構造内からしか実行できないことに注意してください。
+例えば、プロジェクト名が `+hello_world+` の場合、現在の作業ディレクトリは `+hello_world+` のトップレベルのプロジェクトディレクトリかそのサブディレクトリのいずれかである必要があります。
+
+== 基本的な利用法
+
+[source,bash]
+----
+dfx ping [provider] [flag]
+----
+
+== フラグ
+
+`+dfx ping+` コマンドでは、以下のオプションフラグを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+== 引数
+
+`+dfx ping+` コマンドには以下の引数を指定することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|引数 |説明
+
+|provider |使用したい {platform} またはテストネットの URL を指定します。
+|===
+
+== 例
+
+以下のようなコマンドを実行することで、`+dfx ping+` コマンドを使用して，{IC} が現在特定のネットワークアドレスで利用可能かどうかを確認することができます：
+
+[source,bash]
+----
+dfx ping https://testgw.dfinity.network
+----
+
+指定したネットワークプロバイダアドレスで {IC} が動作している場合、コマンドは次のような出力を返します。
+
+....
+{
+  "ic_api_version": "0.8"
+}
+....
+
+
+
+////
+= dfx ping
+
 Use the `+dfx ping+` command to check connectivity to the {platform} or a testnet.
 This command enables you to verify that you can connect to the environment where you want to deploy to. 
 
@@ -52,3 +109,7 @@ If the {IC} is running on the specified network provider address, the command re
   "ic_api_version": "0.8"
 }
 ....
+
+
+
+////
