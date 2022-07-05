@@ -1,5 +1,67 @@
 = dfx replica
 
+`+dfx replica+` コマンドを使用すると、ローカル Canister 実行環境（ Web サーバー不要）を起動することができます。
+このコマンドを使うことで、ローカルに Canister を配備し、開発中のアプリをテストすることができます。
+
+このコマンドは、プロジェクトのディレクトリ構造内からしか実行できないことに注意してください。
+例えば、プロジェクト名が `+hello_world+` の場合、現在の作業ディレクトリは `+hello_world+` のトップレベルのプロジェクトディレクトリかそのサブディレクトリのいずれかである必要があります。
+
+== 基本的な利用法
+
+[source,bash]
+----
+dfx replica [option] [flag]
+----
+
+== フラグ
+
+`+dfx replica+` コマンドでは、以下のオプションフラグを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+== オプション
+
+`+dfx replica+` コマンドでは、以下のオプションを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|オプション |説明
+|`+--port port+` |ローカル Canister 実行環境がリッスンするポートを指定します。
+|===
+
+////
+|`+--message-gas-limit maximum-gas-limit+` |Specifies the maximum resources that a single message can consume. Computational resources such as CPU, memory, and storage are measured in tokens that are converted in "gas" available to be consumed by applications.
+|`+--round-gas-limit round-gas-limit+` |Specifies the maximum resources that a single round of messages can consume in the "gas" available to be consumed by applications.
+////
+
+== 例
+
+以下のコマンドを実行することで、ローカル Canister 実行環境を起動することができます：
+
+[source,bash]
+----
+dfx replica
+----
+
+////
+If you want to set an upper limit on the resources a single message can consume, you might run a command similar to the following:
+
+[source,bash]
+----
+dfx replica --maximum-gas-limit 1000
+----
+////
+
+
+
+////
+= dfx replica
+
 Use the `+dfx replica+` command to start a local canister execution environment (without a web server).
 This command enables you to deploy canisters locally and to test your dapps during development.
 
@@ -35,10 +97,11 @@ You can use the following option with the `+dfx replica+` command.
 |`+--port port+` |Specifies the port the local canister execution environment should listen to.
 |===
 
-////
+// ////（コメントアウト）
 |`+--message-gas-limit maximum-gas-limit+` |Specifies the maximum resources that a single message can consume. Computational resources such as CPU, memory, and storage are measured in tokens that are converted in "gas" available to be consumed by applications.
 |`+--round-gas-limit round-gas-limit+` |Specifies the maximum resources that a single round of messages can consume in the "gas" available to be consumed by applications.
-////
+
+// ////（コメントアウト）
 
 == Examples
 
@@ -48,11 +111,16 @@ You can start the local canister execution environment by running the following 
 ----
 dfx replica
 ----
-////
+
+// ////（コメントアウト）
 If you want to set an upper limit on the resources a single message can consume, you might run a command similar to the following:
 
 [source,bash]
 ----
 dfx replica --maximum-gas-limit 1000
 ----
+// ////（コメントアウト）
+
+
+
 ////
