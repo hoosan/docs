@@ -1,11 +1,11 @@
-// Import base modules
+// base モジュールをインポート
 import AssocList "mo:base/AssocList";
 import Error "mo:base/Error";
 import List "mo:base/List";
 
 shared({ caller = initializer }) actor class() {
 
-    // Establish role-based greetings to display
+    // ロールに応じた挨拶を決めて、表示する
     public shared({ caller }) func greet(name : Text) : async Text {
         if (has_permission(caller, #assign_role)) {
             return "Hello, " # name # ". You have a role with administrative privileges."
@@ -16,7 +16,7 @@ shared({ caller = initializer }) actor class() {
         }
     };
 
-    // Define custom types
+    // カスタム型を定義する
     public type Role = {
         #owner;
         #admin;
@@ -43,7 +43,7 @@ shared({ caller = initializer }) actor class() {
         }
     };
 
-    // Determine if a principal has a role with permissions
+    // Principal がパーミッションのあるロールを持っているかどうかを判断する
     func has_permission(pal: Principal, perm : Permission) : Bool {
         let role = get_role(pal);
         switch (role, perm) {
@@ -53,14 +53,14 @@ shared({ caller = initializer }) actor class() {
         }
     };
 
-    // Reject unauthorized user identities
+    // 不正なユーザー Identity を拒否する
     func require_permission(pal: Principal, perm: Permission) : async () {
         if ( has_permission(pal, perm) == false ) {
             throw Error.reject( "unauthorized" );
         }
     };
 
-    // Assign a new role to a principal
+    // Princiapl に新しいロールを割り当てる
     public shared({ caller }) func assign_role( assignee: Principal, new_role: ?Role ) : async () {
         await require_permission( caller, #assign_role );
 
@@ -82,12 +82,12 @@ shared({ caller = initializer }) actor class() {
         return caller;
     };
 
-    // Return the principal of the message caller/user identity
+    // メッセージの呼び出し元/ユーザ Identity の Principal を返す
     public shared({ caller }) func callerPrincipal() : async Principal {
         return caller;
     };
 
-    // Return the role of the message caller/user identity
+    // メッセージの呼び出し元/ユーザーの Identity のロールを返す
     public shared({ caller }) func my_role() : async ?Role {
         return get_role(caller);
     };

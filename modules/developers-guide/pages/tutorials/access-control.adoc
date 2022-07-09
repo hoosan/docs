@@ -1,3 +1,495 @@
+= Identity によるアクセス制御を追加する
+ifdef::env-github,env-browser[:outfilesuffix:.adoc]
+//:!page-repl:
+:proglang: Motoko
+:LEE: ローカル Canister 実行環境
+:IC: Internet Computer blockchain
+:company-id: DFINITY
+
+
+Dapp では、ユーザーごとに操作を制御するために、ロールベースのパーミッションが必要になることがよくあります。
+
+このチュートリアルでは、ユーザー identity の作成と切り替え方法を解説するために、異なるロールを割り当てられたユーザーに対して、異なる挨拶を表示する簡単な Dapp を作成します。
+
+この例では、`+owner+`、`+admin+`、`+authorized+` という名前の３つのロールが存在します。
+
+* `+admin+` ロールが割り当てられたユーザーには、`+You have a role with administrative privileges+`（あなたは管理者権限のあるロールを持っています）という挨拶が表示されます。
+* `+authorized+` ロールが割り当てられたユーザーには、`+Would you like to play a game?+`（ゲームをしたいですか？）という挨拶が表示されます。
+* これらのロールが割り当てられていないユーザーには、`+Nice to meet you!+`（はじめまして！） という挨拶が表示されます。
+
+さらに、Canister スマートコントラクトを初期化した ユーザー Identity にのみ `+owner+` ロールが割り当てられ、`+owner+` と `+admin+` ロールのみ他のユーザーにロールを割り当てることができます。
+
+大まかに言えば、各ユーザーは公開鍵/秘密鍵のペアを持ちます。公開鍵と、ユーザーがアクセスする Canister スマートコントラクト識別子を組み合わせて、セキュリティ Principal を形成し、{IC} 上で動作する Canister スマートコントラクトへの関数呼び出しを認証するメッセージ呼び出し元として使用できます。
+下図で、ユーザー Identity がメッセージ呼び出し元を認証する方法を簡略化して示します。
+
+image::principal-identities.svg[]
+
+== 始める前に
+
+チュートリアルを始める前に、下記を確認してください。
+
+* link:../../quickstart/local-quickstart{outfilesuffix}#download-and-install[ダウンロードとインストール] の説明に従って {sdk-short-name} パッケージをダウンロードし、インストールした。
+
+* 少なくとも１つのコマンドを実行し、`+default+` ユーザーの Identity が作成された。
+デフォルトのユーザー Identity は、すべてのプロジェクトにおいて `+$HOME/.config/dfx/identity/+` ディレクトリにグローバルに保存されます。
+
+* IDE としてVisual Studio Code を使用している場合、link:../../quickstart/local-quickstart{outfilesuffix}#install-vscode[Install the language editor plug-in] で説明したように、{proglang} 用の Visual Studio Code プラグインをインストールした。
+
+* コンピュータ上で実行されている {LEE} プロセスをすべて停止した。
+
+== 新規プロジェクトを作成する
+
+アクセス制御とユーザー Identity の切り替えをテストするために、新規プロジェクトディレクトリを作成するには
+
+. ローカルコンピューターでターミナルシェルを開いてください（まだ開いていない場合）。
+. {IC} プロジェクトで使用しているフォルダがある場合は、そのフォルダに移動します。
+. 下記コマンドを実行することで、新規プロジェクトを作成します。
++
+[source,bash]
+----
+dfx new access_hello
+----
+. 以下のコマンドを実行することで、プロジェクトディレクトリに移動します。
++
+[source,bash]
+----
+cd access_hello
+----
+
+== デフォルトの Dapp を変更する
+
+このチュートリアルでは、テンプレートのソースコードファイルを、ロールの割り当てと取得のための機能を持つ Dapp に置き換えます。
+
+デフォルトの Dapp を変更するには
+
+. テキストエディタで `+src/access_hello/main.mo+` ファイルを開き、既存の内容を削除します。
+. 下記のサンプルコードをコピーしてファイルに貼り付けます。
++
+[source.copy,motoko,no-repl]
+----
+include::example$access-hello/main.mo[]
+----
++
+この Dapp の主要な要素をいくつか見てみましょう。
++
+--
+* `+greet+` 関数は、以前のチュートリアルで見た `+greet+` 関数のバリエーションであることにお気づきかもしれません。
++
+しかし、この Dapp では、`+greet+` 関数がメッセージの呼び出し元を利用して、適用すべきパーミッションを決定し、呼び出し元に関連するパーミッションに基づいて、どの挨拶を表示するかを決めます。
+* この Dapp では、`+Roles+` と `+Permissions+` の２つのカスタム型を定義します。
+* `+assign_roles+` 関数を使用すると、メッセージの呼び出し元が Identity に関連付けられた Principal にロールを割り当てることができます。
+* `+callerPrincipal+` 関数を使用すると、Identity に関連付けられた Principal を返せます。
+* `+my_role+` 関数を使用すると、Identity に関連付けられたロールを返せます。
+--
+. 変更を保存し、`+main.mo+` ファイルを閉じて、続行します。
+
+== Start the {LEE} / {LEE} を起動する
+
+`+access_hello+` プロジェクトをビルドする前に、開発環境で動作している {LEE} または {IC} のメインネットに接続する必要があります。
+
+{LEE} を起動するには
+
+. ローカルコンピューターで新しいターミナルウィンドウまたはタブを開きます。
+. 必要であれば、プロジェクトのルートディレクトリに移動します。
+. 下記のコマンドを実行することで、コンピュータ上の {LEE} を起動します。
++
+[source,bash]
+----
+dfx start --background
+----
++
+{LEE} の起動操作が完了したら、次の手順に進めます。
+
+== Dapp を登録、ビルド、デプロイする
+
+開発環境で動作している {LEE} に接続した後、link:../cli-reference/dfx-deploy{outfilesuffix}[`dfx deploy`] コマンドを実行することで、Dapp の登録、構築、デプロイが一度で行えます。
+link:../cli-reference/dfx-canister{outfilesuffix}#dfx_canister_create[`+dfx canister create+`]、link:../cli-reference/dfx-build{outfilesuffix}[`+dfx build+`]、および link:../cli-reference/dfx-canister{outfilesuffix}#dfx_canister_install[`+dfx canister install+`] コマンドを用いてこれらの各ステップを個別に実行することも可能です。
+
+Dapp をローカルにデプロイするには
+
+. 必要に応じて、プロジェクトのルートディレクトリにまだいることを確認します。
+. 下記のコマンドを実行することで、`+access_hello+` バックエンド Dapp を登録、ビルド、デプロイします。
++
+[source,bash]
+----
+dfx deploy access_hello
+----
++
+....
+Creating a wallet canister on the local network.
+The wallet canister on the "local" network for user "default" is "rwlgt-iiaaa-aaaaa-aaaaa-cai"
+Deploying: access_hello
+Creating canisters...
+Creating canister "access_hello"...
+"access_hello" canister created with canister id: "rrkah-fqaaa-aaaaa-aaaaq-cai"
+Building canisters...
+Installing canisters...
+Installing code for canister access_hello, with canister_id rrkah-fqaaa-aaaaa-aaaaq-cai
+Deployed canisters.
+....
+
+== 現在の Identity コンテキストを確認する
+
+追加の Identity を作成する前に、`+default+` Identity と `+default+` Identity 用の Cycle ウォレットに関連付けられた Principal 識別子を確認しましょう。
+{IC} において、Principal はユーザー、Canister スマートコントラクト、ノード、またはサブネットの内部の代表です。Principal のテキスト表現は、Principal データ型で作業している際に表示される外部識別子です。
+
+現在の Identity と Principal を確認するには
+
+. 下記のコマンドを実行することで、現在アクティブな Identity を確認します。
++
+[source,bash]
+----
+dfx identity whoami
+----
++
+このコマンドは、下記のような出力を表示します。
++
+....
+default
+....
+. 下記のコマンドを実行することで、`+default+` ユーザー Identity の Principal を確認します。
++
+[source,bash]
+----
+dfx identity get-principal
+----
++
+このコマンドは、下記のような出力を表示します。
++
+....
+zen7w-sjxmx-jcslx-ey4hf-rfxdq-l4soz-7ie3o-hti3o-nyoma-nrkwa-cqe
+....
+. 下記のコマンドを実行することで、`+default+` ユーザー Identity に関連付けられたロールを確認します。
++
+[source,bash]
+----
+dfx canister --wallet=$(dfx identity get-wallet) call access_hello my_role
+----
++
+このコマンドは、下記のような出力を表示します。
++
+....
+(opt variant { owner })
+....
+
+== 新しいユーザー Identity を作成する
+
+Dapp のアクセス制御のテストを始めるために、いくつかの新しいユーザー Identity を作成し、それらのユーザーに異なるロールを割り当てましょう。
+
+新しいユーザー Identity を作成するには
+
+. 必要に応じて、プロジェクトのディレクトリにまだいることを確認します。
+. 下記のコマンドを実行することで、新しい管理ユーザー Identity を作成します。
++
+[source,bash]
+----
+dfx identity new ic_admin
+----
++
+このコマンドは、下記のような出力を表示します。
++
+....
+Creating identity: "ic_admin".
+Created identity: "ic_admin".
+....
+. 新しいユーザー Identity がどのロールにも割り当てられていないことを確認するために、`+my_role+` 関数を呼び出してください。
++
+[source,bash]
+----
+dfx --identity ic_admin canister call access_hello my_role
+----
++
+このコマンドは、下記のような出力を表示します。
++
+....
+Creating a wallet canister on the local network.
+The wallet canister on the "local" network for user "ic_admin" is "ryjl3-tyaaa-aaaaa-aaaba-cai"
+(null)
+....
+. 下記のコマンドを実行することで、新しい `+ic_admin+` ユーザー Identity を使用するために現在のアクティブ Identity コンテキストを切り替えて、`+ic_admin+` ユーザーに関連付けられている Principal を表示します。
++
+[source,bash]
+----
+dfx identity use ic_admin && dfx identity get-principal
+----
++
+このコマンドは、下記のような出力を表示します。
++
+....
+Using identity: "ic_admin".
+c5wa6-3irl7-tuxuo-4vtyw-xsnhw-rv2a6-vcmdz-bzkca-vejmd-327zo-wae
+....
+. 下記のコマンドを実行することで、`+access_hello+` Canister スマートコントラクトを呼び出すのに使用される Principal を確認します。
++
+[source,bash]
+----
+dfx canister call access_hello callerPrincipal
+----
++
+このコマンドは、下記のような出力を表示します。
++
+....
+(principal "ryjl3-tyaaa-aaaaa-aaaba-cai")
+....
++
+デフォルトでは、Cycles ウォレットの識別子は、`+access_hello+` Canister スマートコントラクトのメソッドを呼び出すのに使用される Principal です。
+しかし、アクセス制御を解説するために、Cycle ウォレットではなく、ユーザーコンテキストに関連付けられた Principal 使用したいと思います。
+しかし、その前に `+ic_admin+` ユーザーに対してロールを割り当てましょう。そのためには、`+owner+` ロールを持つ `+default+` ユーザー Identity に切り替える必要があります。
+
+== Identity にロールを割り当てる
+
+ic_admin Identity に admin ロールを割り当てるには
+
+. 下記のコマンドを実行することで、現在アクティブな Identity コンテキストを切り替えることで、`+default+` ユーザー Identity を使用するようにします。
++
+[source,bash]
+----
+dfx identity use default
+----
+. コマンドを下記のような Candid 構文で実行することで、`+ic_admin+` Principal に `+admin+` ロールを割り当てます。
++
+[source,bash]
+----
+dfx canister --wallet=$(dfx identity get-wallet) call access_hello assign_role '((principal "c5wa6-3irl7-tuxuo-4vtyw-xsnhw-rv2a6-vcmdz-bzkca-vejmd-327zo-wae"),opt variant{admin})'
+----
+
+NOTE: 必ず `+principal+` ハッシュを、`+ic_admin+` Identity の `+dfx identity get-principal+` コマンドによって返されるハッシュに置き換えてください。
+
++
+オプションとして、コマンドを再実行して `+my_role+` 関数を呼び出し、ロールの割り当てを確認できます。
++
+[source,bash]
+----
+dfx --identity ic_admin canister call access_hello my_role
+----
++
+このコマンドは、下記のような出力を表示します。
++
+....
+(opt variant { admin })
+....
+. 先ほど `+admin+` ロールを割り当てた `+ic_admin+` ユーザー Identity を使用して、下記のコマンドを実行することで、`+greet+` 関数を呼び出します。
++
+[source,bash]
+----
+dfx --identity ic_admin canister call access_hello greet "Internet Computer Admin"
+----
++
+このコマンドは、下記のような出力を表示します。
++
+....
+(
+  "Hello, Internet Computer Admin. You have a role with administrative privileges.",
+)
+....
+
+== authorized ユーザー Identity を追加する
+
+この時点で、`+default+` ユーザー Identity に `+owner+` ロール、 `+ic_admin+` ユーザー Identity に `+admin+` ロールを割り当てました。
+もう１つユーザー Identity を追加して、 `+authorized+` ロールを割り当てましょう。
+ただし、この例では、ユーザーの Principal を格納するのに環境変数を使用します。
+
+新しい authorized ユーザー Identity を追加するには
+
+. 必要に応じて、プロジェクトディレクトリにまだいることを確認します。
+. 下記のコマンドを実行することで、新しい authorized ユーザー Identity を作成します。
++
+[source,bash]
+----
+dfx identity new alice_auth
+----
++
+このコマンドは、下記のような出力を表示します。
++
+....
+Creating identity: "alice_auth".
+Created identity: "alice_auth".
+....
+. 下記のコマンドを実行することで、現在アクティブな Identity コンテキストを切り替えて、新しい `+alice_auth+` ユーザー Identity を使用するようにします。
++
+[source,bash]
+----
+dfx identity use alice_auth
+----
+. 下記のコマンドを実行することで、`+alice_auth+` ユーザーの Principal を環境変数に格納します。
++
+[source,bash]
+----
+ALICE_ID=$(dfx identity get-principal)
+----
++
+下記のコマンドを実行することで、保存されている Principal を確認できます。
++
+[source,bash]
+----
+echo $ALICE_ID
+----
++
+このコマンドは、下記のような出力を表示します。
++
+....
+b5quc-npdph-l6qp4-kur4u-oxljq-7uddl-vfdo6-x2uo5-6y4a6-4pt6v-7qe
+....
++
+. `+ic_admin+` の Identity を使用して、下記のコマンドを実行することで `+alice_auth+` に `+authorized+` ロールを割り当てます。
++
+[source,bash]
+----
+dfx --identity ic_admin canister call access_hello assign_role "(principal \"$ALICE_ID\", opt variant{authorized})"
+----
+. ロールの割り当てを確認するために `+my_role+` 関数を呼び出します。
++
+[source,bash]
+----
+dfx --identity alice_auth canister call access_hello my_role
+----
+このコマンドは、下記のような出力を表示します。
++
+....
+(opt variant { authorized })
+....
+. 先ほど `+authorized+` ロールを割り当てた `+alice_auth+` ユーザー Identity を使用して、下記のコマンドを実行することで `+greet+` 関数を呼び出してください。
++
+[source,bash]
+----
+dfx canister call access_hello greet "Alice"
+----
++
+このコマンドは、下記のような出力を表示します。
++
+....
+(
+  "Welcome, Alice. You have an authorized account. Would you like to play a game?",
+)
+....
+
+== unauthorized なユーザー Identity を追加する
+
+ここまで、特定のロールとパーミッションのあるユーザーを作成する簡単な例を見ました。
+次のステップでは、ロールが割り当てられていない、または特別なパーミッションが与えられていないユーザー・アイデンティティを作成します。
+
+unauthorized なユーザー Identity を追加するには
+
+. 必要に応じて、プロジェクトディレクトリにまだいることを確認します。
+. 必要に応じて、下記のコマンドを実行することで、現在アクティブな Identity を確認します。
++
+[source,bash]
+----
+dfx identity whoami
+----
+. 下記のコマンドを実行することで、新しいユーザー Identity を作成します。
++
+[source,bash]
+----
+dfx identity new bob_standard
+----
++
+このコマンドは、下記のような出力を表示します。
++
+....
+Creating identity: "bob_standard".
+Created identity: "bob_standard".
+....
+. 以下のコマンドを実行することで、`+bob_standard+` ユーザーの Principal を環境変数に格納します。
++
+[source,bash]
+----
+BOB_ID=$(dfx --identity bob_standard identity get-principal)
+----
+. ロールを割り当てるために `+bob_standard+` Identity を使用してみます。
++
+[source,bash]
+----
+dfx --identity bob_standard canister call access_hello assign_role "(principal \"$BOB_ID\", opt variant{authorized})"
+----
++
+このコマンドは `+Unauthorized+` エラーを返します。
+. 下記のコマンドを実行することで、`+default+` ユーザー Identity を使用して `+bob_standard+` に `+owner+` ロールを割り当ててみます。
++
+[source,bash]
+----
+dfx --identity default canister --wallet=$(dfx --identity default identity get-wallet) call access_hello assign_role "(principal \"$BOB_ID\", opt variant{owner})"
+----
++
+このコマンドは、ユーザーに `+owner+` ロールを割り当てることができないため、失敗します。
+. 下記のコマンドを実行することで、`+bob_standard+` ユーザー Identity を使用して `+greet+` 関数を呼び出します。
++
+[source,bash]
+----
+dfx --identity bob_standard canister call access_hello greet "Bob"
+----
++
+このコマンドは、下記のような出力を表示します。
++
+....
+("Greetings, Bob. Nice to meet you!")
+....
+
+== 複数のコマンドでユーザー Identity を設定する
+
+ここまで、個々のコマンドでユーザー Identity を作成し、切り替える方法について見てきました。
+使用したいユーザー Identity を指定し、そのユーザー Identity のコンテキストで複数のコマンドを実行することも可能です。
+
+１つのユーザー Identity で複数のコマンドを実行するには
+
+. 必要であれば、プロジェクトディレクトリにまだいることを確認します。
+. 下記のコマンドを実行することで、現在利用可能なユーザー Identity を一覧表示します。
++
+[source,bash]
+----
+dfx identity list
+----
++
+このコマンドは、現在アクティブなユーザー Identity を示すアスタリスクと共に、下記のような出力を表示します。
++
+....
+alice_auth
+bob_standard
+default *
+ic_admin
+....
++
+この例では、明示的に別の Identity を選択しない限り、`+default+` ユーザー Identity が使用されます。
+. 下記のようなコマンドを実行することで、一覧から新しいユーザー Identity を選択し、それをアクティブなユーザーコンテキストにします。
++
+[source,bash]
+----
+dfx identity use ic_admin
+----
++
+このコマンドは、下記のような出力を表示します。
++
+....
+Using identity: "ic_admin".
+....
++
+`+dfx identity list+` コマンドを再実行すると、`+ic_admin+` ユーザー Identity が現在アクティブなユーザーコンテキストであることを示すアスタリスクが表示されます。
+
++
+コマンドラインで `+--identity+` を指定しなくても、選択したユーザー Identity を使用してコマンドを実行できるようになります。
+
+== {LEE} を停止する
+
+Dapp の実体験と Identity の使用が終わったら、バックグラウンドで動作し続けないように {LEE} を停止できます。
+
+{LEE} を停止するには
+
+. ネットワーク操作を表示するターミナルで、Control-C を押して、ローカルネットワークの処理を中断します。
+. 下記のコマンドを実行することで、{LEE} を停止します。
++
+[source,bash]
+----
+dfx stop
+----
+
+== もっと詳しく知りたいですか？
+
+Identity と認証についてより詳しい情報をお探しの場合は、下記の関連資料をご覧ください。
+
+* link:../cli-reference/dfx-identity{outfilesuffix}[dfx identity（コマンドリファレンス）]
+* link:../working-with-canisters{outfilesuffix}#set-owner[Canister スマートコントラクトを所有するための Identity を設定する（ハウツー）]
+
+////
 = Add access control with identities
 ifdef::env-github,env-browser[:outfilesuffix:.adoc]
 //:!page-repl:
@@ -486,3 +978,4 @@ If you are looking for more information about identity and authentication, check
 
 * link:../cli-reference/dfx-identity{outfilesuffix}[dfx identity (command reference)]
 * link:../working-with-canisters{outfilesuffix}#set-owner[Set an identity to own a canister smart contract (how-to)]
+////
