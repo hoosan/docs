@@ -83,7 +83,7 @@ include::example$access-hello/main.mo[]
 --
 . 変更を保存し、`+main.mo+` ファイルを閉じて、続行します。
 
-== Start the {LEE} / {LEE} を起動する
+== {LEE} を起動する
 
 `+access_hello+` プロジェクトをビルドする前に、開発環境で動作している {LEE} または {IC} のメインネットに接続する必要があります。
 
