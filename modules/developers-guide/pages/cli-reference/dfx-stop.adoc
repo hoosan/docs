@@ -1,5 +1,68 @@
 = dfx stop
 
+`+dfx stop+` コマンドを使用して、現在コンピュータ上で動作しているローカルのCanister 実行環境プロセスを停止することが出来ます。
+多くの場合、開発中に Canister をデプロイしてアプリをテストするために、Canister 実行環境をローカルで実行します。
+{platform} への接続をシミュレートするために、これらのプロセスは起動したターミナルシェル内、もしくはバックグラウンドで、停止または終了するまで継続的に実行されます。
+
+このコマンドはプロジェクトのディレクトリ構造内からしか実行できないことに注意してください。
+例えば、プロジェクト名が `+hello_world+` の場合、現在の作業ディレクトリは `+hello_world+` のトップレベルのプロジェクトディレクトリかそのサブディレクトリのいずれかである必要があります。
+
+== 基本的な利用法
+
+[source,bash]
+----
+dfx stop [flag]
+----
+
+== フラグ
+
+`+dfx stop+` コマンドでは、以下のオプションフラグを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header",]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+== 例
+
+プロジェクト・ディレクトリに移動して以下のコマンドを実行すると、バックグラウンドで動作しているローカル Canister 実行環境のプロセスを停止させることができます：
+
+[source,bash]
+----
+dfx stop
+----
+
+もし、ローカルの Canister 実行環境がバックグラウンドではなく、カレントシェルで動作している場合は、新しいターミナルシェルを開き、プロジェクトディレクトリに移動し、`+dfx stop+` コマンドを実行します。
+
+`+dfx+` によって起動された Canister 実行環境プロセスの現在のプロセス ID （ `+pid+` ）は `+.dfx/pid+` ファイルに記録されています。
+このプロセス ID は `+dfx stop+` コマンドを実行する前に、以下のコマンドを実行することで確認することができます：
+
+[source,bash]
+----
+more .dfx/pid
+----
+
+このコマンドは、次のようなプロセス ID を表示します：
+
+[source,bash]
+----
+1896
+----
+
+停止を試みても何らかの問題でサービスが継続する場合は、次の方法で実行中のすべてのジョブを終了させることができます：
+
+[source,bash]
+----
+killall dfx replica
+----
+
+
+
+////
+= dfx stop
+
 Use the `+dfx stop+` command to stop the local canister execution environment processes that you currently have running on your computer.
 In most cases, you run the canister execution environment locally so that you can deploy canisters and test your dapps during development.
 To simulate the connection to the {platform}, these processes run continuously either in a terminal shell where you started them or the in the background until you stop or kill them.
@@ -58,3 +121,7 @@ If you are still having trouble with a persistent service running after attempti
 ----
 killall dfx replica
 ----
+
+
+
+////
