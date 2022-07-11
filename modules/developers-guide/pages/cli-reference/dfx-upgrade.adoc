@@ -1,5 +1,64 @@
 = dfx upgrade
 
+`+dfx upgrade+` コマンドを使用すると、ローカルコンピュータで動作している {sdk-short-name} コンポーネントをアップグレードすることができます。
+このコマンドは、現在インストールされている {sdk-short-name} のバージョンと `+manifest.json+` ファイルで指定された一般公開されている最新バージョンをチェックします。
+ローカルで古いバージョンの {sdk-short-name} が検出された場合、`+dfx upgrade+` コマンドは自動的に CDN から最新バージョンをフェッチします。
+
+== 基本的な利用法
+
+[source,bash]
+----
+dfx upgrade [flag] [option]
+----
+
+== フラグ
+
+`+dfx upgrade+` コマンドでは、以下のオプションフラグを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header",]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+== オプション
+
+`+dfx upgrade+` コマンドでは、以下のオプションを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header",]
+|===
+|オプション |説明
+
+|`+--current-version <version>+` |現在のバージョンとして認識させたいバージョンを指定します。
+このオプションにより、現在最新版として認識されているバージョンを、コマンドラインで渡したバージョンで上書きすることができます。
+
+|===
+
+== 例
+
+現在インストールされている {sdk-short-name} のバージョンは、以下のコマンドを実行することでアップグレードが可能です：
+
+[source,bash]
+----
+dfx upgrade
+----
+
+このコマンドは、現在インストールされている `+dfx+` のバージョンと、マニフェストファイルで {sdk-short-name} の Web サイトに公開されている最新版をチェックします。
+もし、より新しいバージョンの `+dfx+` が利用可能であれば、コマンドは自動的に最新バージョンをダウンロードしインストールします。
+
+[source,bash]
+----
+Current version: 0.6.8
+Fetching manifest \https://smartcontracts.org/manifest.json
+Already up to date
+----
+
+
+
+////
+= dfx upgrade
+
 Use the `+dfx upgrade+` command to upgrade the {sdk-short-name} components running on your local computer.
 This command checks the version of the {sdk-short-name} that you have currently installed against the latest publicly-available version specified in the `+manifest.json+` file.
 If an older version of the {sdk-short-name} is detected locally, the `+dfx upgrade+` command automatically fetches the latest version from the CDN.
@@ -54,3 +113,7 @@ Current version: 0.6.8
 Fetching manifest \https://smartcontracts.org/manifest.json
 Already up to date
 ----
+
+
+
+////
