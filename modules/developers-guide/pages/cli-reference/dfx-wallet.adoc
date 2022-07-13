@@ -1,5 +1,575 @@
 = dfx wallet
 
+`+dfx wallet+` コマンドとサブコマンド、フラグを使用すると、自分の Identity の Cycle ウォレット（以下、 Cycle Wallet ）を管理したり、他のアカウントの Cycle ウォレット Canister（以下、 Cycle Wallet Canister）のウォレットに Cycle を送ることができます：
+
+`+dfx wallet+` コマンドを実行するための基本的なシンタックスは以下の通りです。
+
+[source,bash]
+----
+dfx wallet [option] <subcommand> [flag]
+----
+
+指定する `+dfx wallet+` サブコマンドによっては、追加の引数、オプション、フラグが適用され要求されます。
+特定の `+dfx wallet+` サブコマンドの使用情報を見るには、そのサブコマンドと `+--help+` フラグを指定してください。
+例えば、`+dfx wallet send+` の使用情報を見るには、以下のコマンドを実行します：
+
+[source,bash]
+----
+dfx wallet send --help
+----
+
+`+dfx wallet+` コマンドの使用方法を説明した参考情報とサンプルは、適切なコマンドを選択してください。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|コマンド |説明
+
+|<<dfx wallet add-controller,`+add-controller+`>> |選択した Identity の Principal を使用するコントローラーを追加します。
+
+|<<dfx wallet addresses,`+addresses+`>> |Cycle Wallet のアドレス帳を表示します。
+
+|<<dfx wallet authorize,`+authorize+`>> |選択された Identity の Cycle Wallet のカストディアンを Principal で承認します。
+
+|<<dfx wallet balance,`+balance+`>> |選択した Identity の Cycle Wallet 残高が表示されます。
+
+|<<dfx wallet controllers,`+controllers+`>> |選択した Identity の Cycle Wallet コントローラーの一覧を表示します。
+
+|<<dfx wallet custodians,`+custodians+`>> |選択した Identity の Cycle Wallet カストディアンの一覧を表示します。
+
+|<<dfx wallet deauthorize,`+deauthorize+`>> |カストディアンの Principal を使用して、Cycle Wallet のカストディアンを承認解除します。
+
+|`+help+` |使用法のメッセージと指定されたサブコマンドのヘルプを表示します。
+
+|<<dfx wallet name,`+name+`>> |`+dfx wallet set-name+` コマンドを使用した場合、Cycle Wallet の名前を返します。
+
+|<<dfx wallet remove-controller,`+remove-controller+`>> |選択した Identity の Cycle Wallet から指定したコントローラーを削除します。
+
+|<<dfx wallet send,`+send+`>> |選択した Identity の Cycle Wallet から、送信先ウォレットの Canister ID を使用して指定された Cycle 数量を別の Cycle Wallet に送信します。
+
+|<<dfx wallet set-name,`+set-name+`>> |Cycle Wallet の名前を指定します。
+
+|<<dfx wallet upgrade,`+upgrade+`>> |Cycle Wallet の Wasm モジュールを、DFX にバンドルされている最新のWasm にアップグレードします。
+|===
+
+== ウォレットの利用
+
+`+dfx identity deploy-wallet+` コマンドを使用して、Identity に結びついた Cycle Wallet Canister を作成した後、 `+dfx wallet+` コマンドを使用して、Cycle Wallet の設定を変更したり、他の Cycle Wallet に Cycle を送信したり、コントローラーやカストディアンを追加・削除したりすることができます。
+
+== dfx wallet add-controller
+
+ウォレットにコントローラーを追加するには、`+dfx wallet add-controller+` を使用します。コントローラーの役割を割り当てられた Identity は最も多くの権限を持ち、選択した Identity の Cycle Wallet に対して以下のアクションを実行することができます：
+
+* Cycle Wallet の名前の変更
+
+* アドレス帳に項目を追加
+
+* コントローラーの追加と削除
+
+* カストディアンの権限付与および権限解除
+
+コントローラーはカストディアンでもあって、その役割に関連する以下のアクションを実行することができます：
+
+* Wallet 情報へのアクセス
+
+* Cycle の送金
+
+* コールの転送（ Forward calls ）
+
+* Canister の作成 
+
+
+=== 基本的な利用法
+
+[source,bash,subs="quotes"]
+----
+dfx wallet add-controller [option] <controller> [flag]
+----
+
+=== フラグ
+
+以下のオプションフラグを `+dfx wallet add-controller+` コマンドで使用することができます。
+
+[width="100%",cols="<31%,<69%",options="header"]
+|===
+|フラグ |説明
+
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== オプション
+
+以下のオプションは `+dfx canister call+` コマンドと一緒に使用することができます。
+
+[width="100%",cols="<31%,<69%",options="header"]
+|===
+|オプション |説明
+
+|`+--network <network>+` |追加したいコントローラーの環境（例： {platform} やテストネット）を指定します。
+|===
+
+=== 引数
+
+`+dfx wallet add-controller+` コマンドには、以下の引数を指定できます。
+
+[width="100%",cols="<31%,<69%",options="header",]
+|===
+|引数 |説明
+|`+controller+` |ウォレットに追加するコントローラーの Principal を指定します。 
+|===
+
+=== 例
+
+コントローラーをウォレットに追加するには、`+dfx wallet add-controller+` コマンドを使用します。追加したいコントローラーが別の環境にある場合は、`+--network+` オプションを使用して指定します。例：
+
+[source,bash]
+----
+dfx wallet --network=https://192.168.74.4 add-controller hpff-grjfd-tg7cj-hfeuj-olrjd-vbego-lpcax-ou5ld-oh7kr-kl9kt-yae
+----
+
+== dfx wallet addresses
+
+`+dfx wallet addresses+` コマンドを使用して、ウォレットのアドレス帳を表示します。アドレスのエントリには、Principal と `+role+`（ `+Contact+`, `+Custodian+`, または `+Controller+` ）が含まれ、アドレスと関連付けられた `+name+` と `+kind+`（ `+Unknown+`, `+User+`, または `+Canister+` ）も含まれる場合があります。
+
+=== 基本的な利用法
+
+[source,bash,subs="quotes"]
+----
+dfx wallet addresses
+----
+
+=== フラグ
+
+以下のオプションフラグは `+dfx wallet add-controller+` コマンドで使用することができます。
+
+[width="100%",cols="<31%,<69%",options="header"]
+|===
+|フラグ |説明
+
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+
+|===
+
+=== 例
+
+ウォレットのアドレス帳に登録されている情報を取得するには、`+dfx wallet addresses+` コマンドを使用します。例：
+
+[source,bash]
+----
+dfx wallet addresses
+Id: hpff-grjfd-tg7cj-hfeuj-olrjd-vbego-lpcax-ou5ld-oh7kr-kl9kt-yae, Kind: Unknown, Role: Controller, Name: ic_admin.
+Id: e7ptl-4x43t-zxcvh-n6s6c-k2dre-doy7l-bbo6h-ok8ik-msiz3-eoxhl-6qe, Kind: Unknown, Role: Custodian, Name: alice_auth.
+----
+
+== dfx wallet authorize
+
+ウォレットのカストディアンを承認するには、`+dfx wallet authorize+` コマンドを使用します。カストディアンの役割を割り当てられた Identity は、Cycle Wallet 上で次のアクションを実行できます：
+
+* Wallet 情報へのアクセス
+
+* Cycle の送金
+
+* コールの転送（ Forward calls ）
+
+* Canister の作成 
+
+
+=== 基本的な利用法
+
+[source,bash]
+----
+dfx wallet authorize <custodian> [flag]
+----
+
+=== フラグ
+
+`+dfx wallet authorize+` コマンドでは、以下のオプションフラグを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== 引数
+
+`+dfx wallet authorize+` コマンドでは、以下の必要な引数を使用します。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|引数 |説明
+|`+<custodian>+` |選択した Identity の Cycle Wallet のカストディアンとして追加したい Identity の Principal を指定します。
+|===
+
+=== 例
+
+例えば、alice_auth をカストディアンとして追加するには、次のコマンドで彼女の Principal を指定します：
+
+[source,bash]
+----
+dfx wallet authorize dheus-mqf6t-xafkj-d3tuo-gh4ng-7t2kn-7ikxy-vvwad-dfpgu-em25m-2ae
+----
+
+== dfx wallet balance
+
+`+dfx wallet balance+` コマンドを使用すると、選択した Identity の Cycle Wallet の残高を表示することができます。
+
+=== 基本的な利用法
+
+[source,bash]
+----
+dfx wallet balance
+----
+
+=== フラグ
+
+`+dfx wallet balance+` コマンドでは、以下のオプションフラグを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== 例
+
+選択した Identity の Cycle Wallet の残高を確認します。
+
+[source,bash]
+----
+dfx wallet balance
+----
+
+このコマンドは、Cycle Wallet 内の Cycle 数量を表示します。例：
+
+....
+89000000000000 cycles.
+....
+
+== dfx wallet controllers
+
+`+dfx wallet controllers+` コマンドを使用すると、選択した identity の Cycle Wallet のコントローラーである Identity の Principal をリストアップすることができます。
+
+=== 基本的な利用法
+
+[source,bash]
+----
+dfx wallet controllers
+----
+
+=== フラグ
+
+以下のオプションフラグは `+dfx wallet controllers+` コマンドで使用できます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== 例
+
+選択した Identity の Cycle Wallet のコントローラーをリストアップします。
+
+[source,bash]
+----
+dfx wallet controllers
+----
+
+コントローラーが2つある場合は、以下のような情報が返されるはずです：
+
+....
+dheus-mqf6t-xafkj-d3tuo-gh4ng-7t2kn-7ikxy-vvwad-dfpgu-em25m-2ae
+hpnmi-qgxsv-tgecj-hmjyn-gmfft-vbego-lpcax-ou4ld-oh7kr-l3nu2-yae
+....
+
+== dfx wallet custodians
+
+`+dfx wallet custodians+` コマンドを使用すると、選択した Identity の Cycle Wallet のカストディアンである Identity の Principal をリストアップすることができます。コントローラーとして追加された Identity はカストディアンとしてもリストアップされます。
+
+=== 基本的な利用法
+[source,bash]
+----
+dfx wallet custodians
+----
+
+=== フラグ
+
+`+dfx wallet custodians+` コマンドでは、以下のオプションフラグを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== 例
+
+選択した Identity の Cycle Wallet のカストディアンをリストアップします。 
+
+[source,bash]
+----
+dfx wallet custodians
+----
+
+カストディアンが2つある場合、返される情報は以下のようになるはずです：
+
+....
+dheus-mqf6t-xafkj-d3tuo-gh4ng-7t2kn-7ikxy-vvwad-dfpgu-em25m-2ae
+hpnmi-qgxsv-tgecj-hmjyn-gmfft-vbego-lpcax-ou4ld-oh7kr-l3nu2-yae
+....
+
+
+== dfx wallet deauthorize
+
+`+dfx wallet deauthorize+` コマンドを使用すると、Cycle Wallet からカストディアンを削除することができます。 
+
+NOTE：カストディアンがコントローラーでもある場合、これはコントローラーの役割も取り除くことになります。
+
+=== 基本的な利用法
+
+[source,bash]
+----
+dfx wallet deauthorize <custodian> [flag]
+----
+
+=== フラグ
+
+以下のオプションフラグは、 `+dfx wallet deauthorize+` コマンドで使用できます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== 引数
+
+`+dfx wallet deauthorize+` コマンドでは、以下の必要な引数を使用します。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|引数 |説明
+|`+<custodian>+` |削除したいカストディアンの Principal を指定します。
+|===
+
+=== 例
+
+例えば、alice_auth をカストディアンから削除するには、次のコマンドで Principl を指定します：
+
+[source,bash]
+----
+dfx wallet deauthorize dheus-mqf6t-xafkj-d3tuo-gh4ng-7t2kn-7ikxy-vvwad-dfpgu-em25m-2ae
+----
+
+== dfx wallet name
+
+選択した Identity の Cycle Wallet の名前が `+dfx wallet set-name+` コマンドを使用して設定されている場合、`+dfx wallet name+` コマンドを使用すると、その名前が表示されます。
+
+=== 基本的な利用法
+
+[source,bash]
+----
+dfx wallet name [flag] 
+----
+
+=== フラグ
+
+`+dfx wallet name+` コマンドでは、以下のオプションフラグを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== 例
+
+Cycle Wallet の名前を Terrances_wallet とした場合、コマンドは次のように返されます：
+
+....
+Terrances_wallet
+....
+
+== dfx wallet remove-controller
+
+`+dfx wallet remove-controller+` コマンドを使用すると、選択した Identity の Cycle Wallet のコントローラーを削除することができます。
+
+=== 基本的な利用法
+
+[source,bash]
+----
+dfx wallet remove-controller <controller> [flag]
+----
+
+=== フラグ
+
+以下のオプションフラグは、 `+dfx wallet remove-controller+` コマンドで使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== 引数
+
+`+dfx wallet remove-controller+` コマンドでは、以下の必要な引数を使用します。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|引数 |説明
+|`+<controller>+` |削除するコントローラーの Principal を指定します。
+|===
+
+=== 例
+
+例えば、alice_auth をコントローラーとして削除するには、以下のコマンドで Principal を指定します：
+
+[source,bash]
+----
+dfx wallet remove-controller dheus-mqf6t-xafkj-d3tuo-gh4ng-7t2kn-7ikxy-vvwad-dfpgu-em25m-2ae
+----
+
+== dfx wallet send
+
+`+dfx wallet send+` コマンドを使用すると、送信先 Cycle Wallet の Canister ID を利用して、選択した Identity の Cycle Wallet から別の Cycle Wallet に Cycle を送信することができます。
+
+=== 基本的な利用法
+
+[source,bash]
+----
+dfx wallet [network] send [flag] <destination> <amount> 
+----
+
+=== フラグ
+
+`+dfx wallet send+` コマンドでは、以下のオプションフラグを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== オプション
+
+以下のオプションは、 `+dfx wallet send+` コマンドで使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|オプション |説明
+|`+--network+` |接続先の環境をオーバーライドします。デフォルトでは、ローカルの Canister 実行環境が使用されます。ここには有効な URL（ `http:` または `https:` ）を指定することができます。例： http://localhost:12345/ は有効なネットワーク名です。
+|===
+
+=== 引数
+
+`+dfx wallet send+` コマンドには、以下の引数を指定する必要があります。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|引数 |説明
+
+|`+<destination>+` |Canister ID を使用して、送信先の Cycle Wallet を指定します。
+|`+<amount>+` |送金する Cycle 数量を指定します。
+|===
+
+=== 例
+
+選択した Identity の Cycle Wallet から他の Cycle Wallet に Cycle  を送信します。
+
+例えば、選択した Identity の Cycle Wallet  `+<ic_admin>+` から、ウォレットアドレス `+r7inp-6aaaa-aaabq-cai+` を指定して、送信先の Identity の Cycle Wallet  `+<buffy_standard>+` に 2,000,000,000 Cycle を送信するには、次のコマンドを実行します。
+
+[source,bash]
+----
+dfx wallet send r7inp-6aaaa-aaaaa-aaabq-cai 2000000000
+----
+
+== dfx wallet set-name
+
+`+dfx wallet set-name+` コマンドを使用すると、選択した Identity の Cycle Wallet に名前を割り当てることができます。
+
+=== 基本的な利用法
+
+[source,bash]
+----
+    dfx wallet set-name [flag] <name> 
+----
+
+=== 引数
+
+`+dfx wallet set-name+` コマンドには、以下の引数を指定する必要があります。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|引数 |説明
+|`+<name>+` |Cycle Wallet の名前を指定します。
+|===
+
+=== フラグ
+
+`+dfx wallet set-name+` コマンドでは、以下のオプションフラグを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== 例
+
+現在の Identity の Cycle Wallet の名前を「 Terrances_wallet 」にしたい場合は、以下のコマンドを実行します：
+
+[source,bash]
+----
+dfx wallet set-name Terrances_wallet
+----
+
+== dfx wallet upgrade
+
+`+dfx wallet upgrade+` コマンドを使用すると、Cycle Wallet のWasm モジュールを DFX にバンドルされている最新の Wasm にアップグレードすることができます。
+
+=== 基本的な利用法
+
+[source,bash]
+----
+    dfx wallet upgrade [flag] 
+----
+
+=== フラグ
+
+`+dfx wallet upgrade+` コマンドでは、以下のオプションフラグを使用することができます。
+
+[width="100%",cols="<32%,<68%",options="header"]
+|===
+|フラグ |説明
+|`+-h+`, `+--help+` |利用情報を表示します。
+|`+-V+`, `+--version+` |バージョン情報を表示します。
+|===
+
+=== 例
+Wasm モジュールを最新バージョンにアップグレードするには、次のコマンドを実行します。
+
+[source,bash]
+----
+dfx wallet upgrade
+----
+
+
+
+////
+= dfx wallet
+
 Use the `+dfx wallet+` command with subcommands and flags to manage the cycles wallets of your identities and to send cycles to the wallets of other account cycles wallet canisters.
 
 The basic syntax for running the `+dfx wallet+` commands is:
@@ -566,3 +1136,7 @@ To upgrade the Wasm module to the latest version, run the following command:
 ----
 dfx wallet upgrade
 ----
+
+
+
+////
