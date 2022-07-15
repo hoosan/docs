@@ -73,7 +73,7 @@ dfx wallet send --help
 
 * Cycle の送金
 
-* コールの転送（ Forward calls ）
+* コールの転送
 
 * Canister の作成 
 
@@ -170,7 +170,7 @@ Id: e7ptl-4x43t-zxcvh-n6s6c-k2dre-doy7l-bbo6h-ok8ik-msiz3-eoxhl-6qe, Kind: Unkno
 
 * Cycle の送金
 
-* コールの転送（ Forward calls ）
+* コールの転送
 
 * Canister の作成 
 
@@ -361,7 +361,7 @@ dfx wallet deauthorize <custodian> [flag]
 
 === 例
 
-例えば、alice_auth をカストディアンから削除するには、次のコマンドで Principl を指定します：
+例えば、alice_auth をカストディアンから削除するには、次のコマンドで Principal を指定します：
 
 [source,bash]
 ----
