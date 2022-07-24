@@ -189,7 +189,7 @@ dfx canister call calc sub '(5)'
 ....
 (25)
 ....
-. Call the `+div+` function and pass it the input argument `+5+` by running the following command:
+. 下記のコマンドを実行することで、`+div+` 関数を呼び出し、入力引数 `+5+` を渡します。
 +
 [source,bash]
 ----
