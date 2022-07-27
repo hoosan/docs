@@ -1,3 +1,38 @@
+= はじめに
+:keywords: Internet Computer,blockchain,protocol,replica,subnet,data center,canister,developer, security, security best practices
+:proglang: Motoko, Rust
+:platform: Internet Computer platform
+:company-id: DFINITY
+
+:toc:
+
+このドキュメントは、Web アプリケーションを開発する際のセキュリティのベストプラクティスを Internet Computer 上で Rust Canister や Canister から提供されるものに基づいて提供します。これらのベストプラクティスは、主にセキュリティレビューで発見された問題からヒントを得ています。
+
+これらのベストプラクティスを開発者に宣伝し、潜在的な問題を新しい Dapp の開発中に早期に対処できるようにしたいのです。理想を言えば、これによって安全な Dapp の開発がより効率的になることでしょう。
+
+ここでリンクされている Canister の優れたベストプラクティスは、 link:https://mmapped.blog/posts/01-effective-rust-canisters.html[Effective Rust Canisters] と link:https://www.joachim-breitner.de/blog/788-How_to_audit_an_Internet_Computer_canister[How to audit an Internet Computer canister] にあります。関連するベストプラクティスには、関連する個別部分がリンクされています。
+
+== ベストプラクティスの概況
+
+以下のページで、セキュリティのベストプラクティスを提供しています：
+
+* link:general-security-best-practices[General Security Best Practices（一般的なセキュリティのベストプラクティス）]
+* link:web-app-development-security-best-practices[Web App Specific Security Best Practices（Web アプリ固有のセキュリティベストプラクティス）]
+* link:rust-canister-development-security-best-practices[Rust Canister Development Security Best Practices（Rust Canister 開発のセキュリティベストプラクティス）]
+
+== 対象読者
+
+このドキュメントは当初、DFINITY の内部で使用することを目的としていました。しかし、すべての開発者が恩恵を受けることができるようにコミュニティに公開しています。対象者は、Internet Computer の Canister や Web アプリケーションを開発しているすべての開発者です。また、このようなコードのレビューを行っている方にも興味を持っていただけると思います。
+
+== 免責事項および制限事項
+
+時間とともに成長する可能性のあるベストプラクティスのコレクションを提供します。私たちは、これが Internet Computer 上のDapp のセキュリティを向上させるために有用であると考えていますが、このようなリストは決して完全ではなく、すべての潜在的なセキュリティ上の懸念をカバーできないことを指摘しておきたいと思います。例えば、一般的なベストプラクティスではカバーできない、Dapp のユースケースに非常に特化した攻撃ベクトルが常に存在することになります。そのため、ベストプラクティスに従うことはセキュリティレビューを補完することはできても、それに代わるものではありません。特にセキュリティ上重要な Dapp については、セキュリティレビューや監査を実施することをお勧めします。さらに、ベストプラクティスは現在、リスクや優先順位に従って並べられているわけではないことにご注意ください。
+
+現在、Canister のベストプラクティスは、Rust に焦点を当てています。今後、Motoko に特化したベストプラクティスを含めるように努力する予定です。
+
+
+
+////
 = Introduction
 :keywords: Internet Computer,blockchain,protocol,replica,subnet,data center,canister,developer, security, security best practices
 :proglang: Motoko, Rust
@@ -29,3 +64,7 @@ This document was initially intended for internal use at DFINITY. However, we no
 We provide a collection of best practices that may grow over time. While we think this is useful to improve security of dApps on the Internet Computer, we’d like to point out that such a list will never be complete and will never cover all potential security concerns. For example, there will always be attack vectors very specific to a dApps use cases that cannot be covered by general best practices. Thus, following the best practices can complement, but not replace security reviews. Especially for security critical dApps we recommend performing security reviews/audits. Furthermore, please not that the best practices are currently not ordered according to risk or priority.
 
 Currently, the canister best practices focus on Rust. We will work towards including best practices specific to Motoko as well.
+
+
+
+////
