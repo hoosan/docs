@@ -1,18 +1,18 @@
-// Create a simple Counter actor.
+// シンプルな Counter Actor を作成する。
 actor Counter {
   stable var currentValue : Nat = 0;
 
-  // Increment the counter with the increment function.
+  // increment 関数でカウンターをインクリメントする。
   public func increment() : async () {
     currentValue += 1;
   };
 
-  // Read the counter value with a get function.
+  // get 関数でカウンター値を読み取る。
   public query func get() : async Nat {
     currentValue
   };
 
-  // Write an arbitrary value with a set function.
+  // set 関数で任意の値を書き込む。
   public func set(n: Nat) : async () {
     currentValue := n;
   };

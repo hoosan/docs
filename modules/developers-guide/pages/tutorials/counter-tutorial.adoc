@@ -1,3 +1,243 @@
+= 自然数のインクリメント
+ifdef::env-github,env-browser[:outfilesuffix:.adoc]
+:proglang: Motoko
+:IC: Internet Computer
+:company-id: DFINITY
+
+このチュートリアルでは、単一の Actor を作成し、カウンターをインクリメントし値の永続性を説明するための、いくつかの基本的な関数を提供するプログラムを書くことになります。
+
+このチュートリアルでは、Actor は `+Counter+` と名付けます。
+このプログラムは `+currentValue+` 変数を使用して、カウンタの現在値を表す自然数を格納します。
+このプログラムは下記の関数呼び出しをサポートします。
+
+* `+increment+` 関数呼び出しは、現在の値を更新し、1 だけ増加させます（戻り値はありません）。
+* `+get+` 関数呼び出しは、カウンターの現在値を問い合わせ、返します。
+* `+set+` 関数呼び出しは、引数で指定した任意の数値に現在の値を更新します。
+
+このチュートリアルでは、デプロイされた Canister スマートコントラクトの関数を呼び出すことで、カウンターをインクリメントする方法を簡単に説明します。
+カウンターの値をインクリメントして照会する関数を複数回呼び出すことで、変数のステートつまり変数の値が、呼び出している間、永続化されることを確認できます。
+
+== 始める前に
+
+チュートリアルを始める前に、下記を確認してください。
+
+* link:../../quickstart/local-quickstart{outfilesuffix}#download-and-install[Download and install] で説明されているように、{sdk-short-name} パッケージをダウンロードしインストール済み。
+* コンピュータ上で動作しているローカルの Canister 実行環境をすべて停止済み。
+
+このチュートリアルの所要時間は約 20 分です。
+
+== 新規プロジェクトを作成する
+
+このチュートリアル用に新しいプロジェクトディレクトリを作成するには
+
+[arabic]
+. ローカルのコンピューターでターミナルシェルをまだ開いていない場合、開きます。
+. {IC} プロジェクトで使用しているフォルダがある場合は、そこに移動します。
+. 下記のコマンドを実行することで、新規プロジェクトを作成します。
++
+[source,bash]
+----
+dfx new my_counter
+----
++
+このコマンドは、あなたのプロジェクトに新しい `+my_counter+` プロジェクトを作成します。
+. 下記のコマンドを実行することで、プロジェクトディレクトリに移動します。
++
+[source,bash]
+----
+cd my_counter
+----
+
+== デフォルトの設定を変更する
+
+新規プロジェクトを作成すると、デフォルトの `+dfx.json+` 設定ファイルがプロジェクトディレクトリに追加されることは、すでにお分かりでしょう。
+このチュートリアルでは、デフォルトの設定を変更することで、プロジェクトのメインプログラムに別の名前を使用します。
+
+設定ファイル `+dfx.json+` を変更するには
+
+. テキストエディタで `+dfx.json+` 設定ファイルを開き、デフォルトの `+main+` 設定を `+main.mo+` から `+increment_counter.mo+` へ変更します。
++
+例えば、下記です。
++
+[source,json]
+----
+"main": "src/my_counter/increment_counter.mo",
+----
++
+このチュートリアルでは、ソースファイルの名前を `+main.mo+` から `+increment_counter.mo+` に変更し、設定ファイル `+dfx.json+` の設定でコンパイルされるソースファイルを決める方法を簡単に説明します。
++
+より複雑な Dapp では、依存関係を持つ複数のソースファイルがあり、 `+dfx.json+` 設定ファイルの設定を使用して管理する必要があるかもしれません。
+このようなシナリオでは、複数の Canister スマートコントラクトとプログラムが `dfx.json` ファイルに定義されているので、複数のファイルがすべて `main.mo` という名前になっていると混乱するかもしれません。
++
+それ以外のデフォルトの設定はそのままで大丈夫です。
+. 変更を保存して `+dfx.json+` ファイルを閉じて続行します。
+. ソースコードディレクトリ `+src+` にあるメインプログラムのファイル名を、設定ファイル `+dfx.json+` で指定した名前に合わせ、下記のコマンドを実行することで変更します。
++
+[source,bash]
+----
+mv src/my_counter/main.mo src/my_counter/increment_counter.mo
+----
+
+== デフォルトのプログラムを変更する
+
+ここまでのところ、プロジェクトのメインプログラムの名前を変更しただけです。
+次のステップは `+src/my_counter/increment_counter.mo+` ファイルのコードを修正して、 `+Counter+` という名前の Actor を定義し、 `+increment+`、`+get+`、`+set+` 関数を実装することです。
+
+デフォルトのテンプレートのソースコードを変更するには
+
+. 必要であれば、まだプロジェクトディレクトリにいることを確認します。
+. テキストエディタで `+src/my_counter/increment_counter.mo+` ファイルを開き、既存の中身を削除します。
+. 下記のサンプルコードをコピーして、 `+increment_counter.mo+` ファイルに貼り付けます。
++
+[source.copy,motoko,no-repl]
+----
+include::example$counter.mo[]
+----
++
+下記で、このサンプルプログラムを詳しく見てみましょう。
++
+--
+
+* この例では、変数 `+currentValue+` の宣言に `+stable+` キーワードが含まれており、ステート（設定、増加、取得が可能な値）を永続化していることがわかります。
++
+このキーワードは、プログラムがアップグレードされたときに、変数の値が変更されないことを保証します。
+* 変数 `+currentValue+` の宣言は、その型が自然数 (`+Nat+`) であることも指定しています。
+* このプログラムには、2 つのパブリックな更新メソッド `+increment+` 関数と `+set+` 関数、1 つの照会メソッド `+get+` 関数が含まれています。
++
+--
++
+stable 変数と flexible 変数の詳細は、 link:../../language-guide/motoko{outfilesuffix}[_{proglang} Programming Language Guide_] の link:../../language-guide/upgrades{outfilesuffix}[Stable variables and upgrade methods] をご覧ください。
++
+照会と更新の違いについての詳細は、link:../concepts/canisters-code{outfilesuffix}#canister-state[Canisters include both program and state] の link:../concepts/canisters-code{outfilesuffix}#query-update[Query and update methods] をご覧ください。 
+. 変更を保存し、ファイルを閉じて続行します。
+
+== ローカルの Canister 実行環境を起動する
+
+`+my_counter+` プロジェクトをビルドする前に、{IC} ブロックチェーンをシミュレートするローカルの Canister 実行環境 または {IC} ブロックチェーンメインネットに接続する必要があります。
+
+ローカルの Canister 実行環境を起動するには `+dfx.json+` ファイルが必要なので、プロジェクトのルートディレクトリにいることを確認する必要があります。
+このチュートリアルでは、１つのターミナルでネットワーク操作を開始・確認し、もう１つのターミナルでプロジェクトを管理できるように、別々のターミナルシェルを２つ用意する必要があります。
+
+ローカルの Canister 実行環境を起動するには
+
+[arabic]
+. ローカルのコンピューターで新しいターミナルウィンドウまたはタブを開きます。
+. 必要であれば、プロジェクトのルートディレクトリに移動します。
++
+--
+* **２つのターミナル** を開く必要があります。
+* **現在の作業ディレクトリ** は、**project ディレクトリ** である必要があります。
+--
+. 下記のコマンドを実行することで、コンピュータのローカルの Canister 実行環境を起動します。
++
+[source,bash]
+----
+dfx start
+----
++
+ローカルの Canister 実行環境を起動すると、ターミナルにネットワーク操作に関するメッセージが表示されます。
+. ネットワーク操作を表示しているターミナルを開いたままにして、フォーカスを新規プロジェクトを作成した元のターミナルに切り替えてください。
+
+== Dapp の登録、ビルド、デプロイを行う
+
+開発環境で動作しているローカルの Canister 実行環境に接続すると、ローカルで Dapp の登録、ビルド、デプロイを行うことができます。
+
+Dapp をローカルにデプロイするには
+
+. 必要であれば、まだプロジェクトのルートディレクトリにいることを確認します。
+. 下記のコマンドを実行することで、アプリを登録、ビルド、デプロイします。
++
+[source,bash]
+----
+dfx deploy
+----
++
+`+dfx deploy+` コマンドの出力は、実行した操作に関する情報を表示します。
+
+== デプロイされた Canister スマートコントラクトのメソッドを呼び出す
+
+Canister スマートコントラクトを正常にデプロイしたら、Canister が提供するメソッドを呼び出すエンドユーザーをシミュレートできます。
+このチュートリアルでは、カウンターの値を照会する `+get+` メソッド、呼び出されるたびにカウンターを増加させる `+increment+` メソッド、そしてカウンターを指定した任意の値に更新するための引数を渡す `+set+` メソッドを呼び出します。
+
+デプロイされた Canister スマートコントラクトのメソッドを呼び出すテストをするには
+
+[arabic]
+. 下記のコマンドを実行して `+get+` 関数を呼び出し、デプロイされた Canister の `+currentValue+` 変数の現在の値を読み取ります。
++
+[source,bash]
+----
+dfx canister call my_counter get
+----
++
+このコマンドは `+currentValue+` 変数の現在の値 0 を返します。
++
+....
+(0 : nat)
+....
+[arabic]
+. 下記のコマンドを実行して `+increment+` 関数を呼び出し、デプロイされた Canister の `+currentValue+` 変数の値を１つインクリメントします。
++
+[source,bash]
+----
+dfx canister call my_counter increment
+----
++
+このコマンドは変数の値を増加させ、そのステートを変化させますが、結果は返しません。
+[arabic]
+. 下記のコマンドを再実行して、デプロイされた Canister の `+currentValue+` 変数の現在値を取得します。
++
+[source,bash]
+----
+dfx canister call my_counter get
+----
++
+このコマンドは、下記の通り、`+currentValue+` 変数の更新された値 1 を返します。
++
+....
+(1 : nat)
+....
+[arabic]
+. 追加のコマンドを実行して、他のメソッドを呼び出したり異なる値を使ったりして、実体験します。
++
+例えば、下記のようなコマンドで、カウンターの値を設定したり、返したりしてみてください。
++
+[source,bash]
+----
+dfx canister call my_counter set '(987)'
+dfx canister call my_counter get
+----
++
+これにより、`+currentValue+` の更新された値 987 を返します。
+追加のコマンドを実行します。
++
+[source,bash]
+----
+dfx canister call my_counter increment
+dfx canister call my_counter get
+----
++
+インクリメントされた `+currentValue+` 988 を返します。
+
+include::example$candid-ui.adoc[]
++
+image:candid-counter.png[Counter functions]
+
+== ローカルの Canister 実行環境を停止する
+Dapp の実体験が終わったら、バックグラウンドで実行し続けないように、ローカルの Canister 実行環境を停止できます。
+
+ローカルの Canister 実行環境を停止するには
+
+. ネットワーク操作を表示するターミナルで、Control-C を押して、ローカルの Canister 実行環境を中断します。
+
+. 下記のコマンドを実行して、ローカルの Canister 実行環境を停止します。
+
++
+[source,bash]
+----
+dfx stop
+----
+
+////
 = Increment a natural number
 ifdef::env-github,env-browser[:outfilesuffix:.adoc]
 :proglang: Motoko
@@ -235,3 +475,4 @@ To stop the local canister execution environment:
 ----
 dfx stop
 ----
+////
