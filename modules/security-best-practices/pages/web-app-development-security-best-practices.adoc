@@ -39,15 +39,15 @@ link:https://github.com/dfinity/agent-js[agent-js] で `agent.fetchRootKey()` �
 
 このセクションのベストプラクティスは一般的なものであり、Internet Computer に特化したものではありません。このリストは決して完全なものではなく、過去に問題になった非常に具体的な懸念事項をいくつか挙げているに過ぎません。
 
-=== フロントエンドでの入力の有効化
+=== フロントエンドで入力を検証する
 
 ==== セキュリティ上の懸念事項
 
-信頼できない情報源（ユーザーなど）からのデータの入力検証を怠ると、不正なデータが排除されることなく、ユーザーに配信される可能性があります。これは、DoS、インジェクション攻撃、フィッシングなどにつながる可能性があります。
+信頼できない情報源（ユーザーなど）からのデータの入力検証を怠ると、不正なデータが保存され、ユーザーに配信される可能性があります。これは、DoS、インジェクション攻撃、フィッシングなどにつながる可能性があります。
 
 ==== 推奨
 
-- Canister でのデータ検証に加え、フロントエンドでデータ検証を実施すます。データ検証はできるだけ早く行うべきです。
+- Canister でのデータ検証に加え、フロントエンドでデータ検証を実施しましょう。データ検証はできるだけ早く行うべきです。
 - link:https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html#goals-of-input-validation[OWASP Input Validation Cheat Sheet] を御覧ください。
 
 [[dont-load-untrusted-content]]
@@ -72,7 +72,7 @@ link:https://github.com/dfinity/agent-js[agent-js] で `agent.fetchRootKey()` �
 
 ==== セキュリティ上の懸念事項
 
-セキュリティヘッダは多くのセキュリティに関する問題に使用されます。例えば、link:https://owasp.org/www-community/attacks/Clickjacking[clickjacking]（不認可）、link:https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Strict_Transport_Security_Cheat_Sheet.html[harden TLS]（不認可）、link:https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/script-src[信頼できないドメインからの JavaScript または他のコンテンツがブラウザで実行しない]（要確認）などです。これらのヘッダーを適切に設定しないと、具体的なセキュリティ上の問題が発生し、深層防護ができなくなります。
+セキュリティヘッダは多くのセキュリティに関する問題の対応に使用されます。例えば、link:https://owasp.org/www-community/attacks/Clickjacking[クリックジャッキング]からの防御、link:https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Strict_Transport_Security_Cheat_Sheet.html[TLS]の強制、link:https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/script-src[信頼できないドメインからの JavaScript または他のコンテンツがブラウザで実行しない]ようにするなどです。これらのヘッダーを適切に設定しないと、明確なセキュリティ上の問題が発生し、多層防御が失われます。
 
 ==== 推奨
 
@@ -82,7 +82,7 @@ link:https://github.com/dfinity/agent-js[agent-js] で `agent.fetchRootKey()` �
 - CSPを link:https://csp-evaluator.withgoogle.com/[CSP evaluator] に照らしてチェックしてください。
 - link:https://owasp.org/www-project-secure-headers/[OWASP secure headers project] も参照してください。
 
-=== 暗号化：Web Crypto API を使って XSS から鍵要素を保護する
+=== 暗号化：Web Crypto API を使って XSS からキーマテリアルを保護する
 
 ==== セキュリティ上の懸念事項
 
@@ -90,7 +90,7 @@ link:https://github.com/dfinity/agent-js[agent-js] で `agent.fetchRootKey()` �
 
 ==== 推奨
 
-link:https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API[WebCrypto API] を使用して、JavaScript から鍵の要素を隠します。`generateKey` で `extractable=false` を使用します。link:https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/generateKey[これ] を参照してください。この例は、People Parties プロジェクトで見ることができます。link:https://github.com/dfinity/people-parties/blob/06208183a2679189d02bc5e64dcbd71c5f5dfbed/frontend/src/services/auth.ts#L111-L120[ここ] を参照してください。これにより、JavaScript から秘密鍵にアクセスすることは不可能になります。
+link:https://developer.mozilla.org/en-US/docs/Web/API/Web_Crypto_API[WebCrypto API] を使用して、JavaScript からキーマテリアルを隠します。`generateKey` で `extractable=false` を使用します。link:https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/generateKey[これ] を参照してください。この例は、People Parties プロジェクトで見ることができます。link:https://github.com/dfinity/people-parties/blob/06208183a2679189d02bc5e64dcbd71c5f5dfbed/frontend/src/services/auth.ts#L111-L120[ここ] を参照してください。これにより、JavaScript から秘密鍵にアクセスすることは不可能になります。
 
 === 安全な Web フレームワークを使用する
 
