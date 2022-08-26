@@ -132,11 +132,11 @@
 **** xref:developers-guide:tutorials/custom-frontend.adoc[フロントエンドのカスタマイズ]
 **** xref:developers-guide:tutorials/my-contacts.adoc[スタイルシートの追加]
 
-*** Security Best Practices
-**** xref:security-best-practices:introduction.adoc[Introduction]
-**** xref:security-best-practices:general-security-best-practices.adoc[General Security Best Practices]
-**** xref:security-best-practices:web-app-development-security-best-practices.adoc[Web App Development Security Best Practices]
-**** xref:security-best-practices:rust-canister-development-security-best-practices.adoc[Rust Canister Development Security Best Practices]
+*** セキュリティ・ベストプラクティス
+**** xref:security-best-practices:introduction.adoc[イントロダクション]
+**** xref:security-best-practices:general-security-best-practices.adoc[一般的なベストプラクティス]
+**** xref:security-best-practices:web-app-development-security-best-practices.adoc[Web アプリ開発セキュリティ・ベストプラクティス]
+**** xref:security-best-practices:rust-canister-development-security-best-practices.adoc[Rust Canister 開発セキュリティ・ベストプラクティス]
 
 * プロトコルドキュメント
 ** .xref:developers-guide:concepts/concepts-intro.adoc[概念]
