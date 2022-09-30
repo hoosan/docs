@@ -1,3 +1,356 @@
+= 方法：シード参加者向け Neuron を請求する
+:experimental:
+// Define unicode for Apple Command key.
+:commandkey: &#8984;
+:IC: Internet Computer
+:company-id: DFINITY
+ifdef::env-github,env-browser[:outfilesuffix:.adoc]
+
+_シードコントリビューターが ICP ユーティリティトークンを NNS Neuron としてクレームするためのガイドです。クレーム後の Neuron 制御については、以下を参照してください。
+[https://medium.com/dfinity/integrating-ledger-nano-with-the-nns-front-end-dapp-user-manual-9c5600925e16
+チュートリアル]を参照してください。_
+
+== はじめに ==
+
+2017年2月に DFINITY 財団に Internet Computer の開発支援のために寄付をされた方は、_seed 参加者_ となります。
+その際、寄付された価値、1スイスフランにつき30トークンがあなたのキーに割り当てられました。このトークンは現在、「ICP ユーティリティ・トークン」、略して「ICP」と呼ばれています。
+
+Genesis アンロックでは、ICP は49個の投票用 Neuron のバスケットという形で払い戻されました。バスケットに入ったのは49個の投票用 Neuron です。これらの Neuron は Network Nervous System にすでに存在しています。あなたの Neuron には授与されたトークンが入っており、そのトークンは内部でステークされています。
+
+授与されたあなたの Neuron は自動的に投票するように設定され、すでに投票報酬を獲得しています。あなたは何もする必要はありません。投票報酬を獲得し続けるために、Neuron を初期化する必要はありません。
+
+作成された49個の Neuron は、0日、30日、60日、90日などの溶解遅延があります。ただし 溶解遅延が0日の最初の Neuron（すぐに溶解できる）を除いて、他の溶解遅延には、わずかなランダムな日数が追加されることがあります。
+
+また、あなたの Neuron はプリエイジ(pre-Age)されています。Genesis アンロックの時点では エイジ(Age)がすでに18ヶ月に設定されています。Neuron エイジは投票力とあなたが受け取る投票報酬を大幅に増加させるため、重要なことです。
+
+Neuron を制御するためには、寄付をしたときに生成した秘密鍵を使用する必要があります。あなたが12単語のニーモニックフレーズとして記録したものです。Neuron を制御するためにはまず、自分の Neuron バスケットを _クレーム_ します。請求する方法は2つあります。以下に説明します：
+
+* Ledger Nano デバイスを用いたクレーム（近日公開予定）
+
+* エアギャップ・コンピュータ＋ネットワーク・コンピュータ／スマートフォンでのクレーム
+
+クレーム後、Neuron を制御する方法は2つあります：
+
+* NNS dapp (GUI)は、以下の通りです。
+link:https://medium.com/dfinity/integrating-ledger-nano-with-the-nns-front-end-dapp-user-manual-9c5600925e16[チュートリアル]
+
+* コマンドラインツール ic-hardware-wallet-cli は、以下のリンクから入手できます。
+link:https://github.com/dfinity/nns-dapp/tree/main/ic-hardware-wallet-cli[github]
+
+== Ledger Nano デバイスを用いたクレーム（近日公開予定） ==
+
+これは、Ledger Nano 用の ICP アプリで次のアップデートに含まれる予定です。現在のリリースでは、Neuron を管理することはできますがクレームすることはまだできません。
+
+フェーズ１リリース：ICP アプリの最初のフェーズ１リリースは、Ledger Nano のためのものです。Nano はすべてのユーザーを対象としています。Neuron を管理することができます。溶解遅延の変更、溶解、払い出し、ホットキーの管理、投票など、Neuron を管理することができます。もちろん ICP の転送も可能です。
+
+フェーズ２リリース：次のPhase ２リリースでは シードラウンド Neuron 用の `claim_neurons` 関数が含まれています。これはシードラウンドに参加した方に特化したアップデートです。
+
+== エアギャップ・コンピュータでクレームする ==
+
+クレームには秘密のニーモニックフレーズと、そこから派生した秘密鍵へのアクセスが必要です。クレームの際には、エアギャップ・コンピュータを使用することを強くお勧めします。もし、このような設定に抵抗がある場合、Ledger Nano デバイス用の ICP アプリの次のリリースをお待ちください。
+
+エアギャップデバイスとして、Windows、Linux、MacOS のマシンを使用することができます。Linux には Raspberry Pi が含まれます。
+
+=== ツールをダウンロードする ===
+
+ツールをダウンロードするには、ネットワークに接続された2台目のコンピュータが必要です。ツールは `keysmith` と `quill` と呼ばれています。ここではアーキテクチャのバイナリを見つけ、ダウンロードする方法について説明します。あるいは、次のように github で公開されているソースコードから自分でコンパイルすることもできます。
+link:https://github.com/dfinity/keysmith[keysmith] と
+link:https://github.com/dfinity/quill[quill]
+
+以下のハードウェアアーキテクチャに対応したバイナリが用意されています。ここでのアーキテクチャは、ネットワークコンピュータではなく、エアギャップ・コンピュータを指します。
+
+[options="header"]
+|=====
+|Hardware |keysmith |quill
+|Mac, Intel silicon |darwin-amd64 |macos-x86_64
+|Mac, Apple silicon (M1) |darwin-arm64 | -
+|Linux (x86) |linux-amd64 |linux-x86_64
+|Raspberry Pi |linux-arm32 |arm_32
+|Linux (arm) |linux-arm64 | -
+|Windows |windows-amd64 |windows-x86_64
+|=====
+
+==== keysmith をダウンロードする ====
+
+link:https://github.com/dfinity/keysmith/releases/[keysmith] にアクセスし、最新のリリース（現在v1.6.2）を選択します。表にあるエアギャップ・マシンのアーキテクチャに合致する `.tar.gz` ファイルを取得します。
+
+==== quill をダウンロードする ====
+
+link:https://github.com/dfinity/quill/releases[quill] にアクセスし、最新のリリース（0.2.12以上）を選び、上の表にあるエアギャップ・マシンのアーキテクチャに合致する実行ファイルを取得します。
+
+=== エアギャップ・マシンにコピーする ===
+
+ネットワークに接続されたエアギャップ・マシンから、keysmith `.tar.gz` ファイルと quill 実行ファイルをコピーします。例えば 、USB ドライブで行うことができます。
+
+=== ハッシュを検証する ===
+
+エアギャップ・マシンでターミナルに移動します。ディレクトリを keysmith の.tar.gz ファイルとquill の実行ファイルがあるフォルダに変更します。SHA 256ハッシュを次のコマンドで計算します。
+
+[source,bash]
+----
+openssl dgst -sha256 keysmith-*
+----
+と
+[source,bash]
+----
+openssl dgst -sha256 quill-*
+----
+
+ハッシュは以下のエントリーと一致する必要があります：
+[source,bash]
+----
+SHA256(keysmith-darwin-amd64.tar.gz)=
+a53bad6fa36c1eb35cd36059ffe9cbf4c063b515e47ccf666b7e1c174a7d1088
+SHA256(keysmith-darwin-arm64.tar.gz)=
+47932452353fe7f921b4ac41828dd19530ae0c4bdb72bcbb016a0715ca80e879
+SHA256(keysmith-linux-amd64.tar.gz)=
+cb283dac031d8676f25e72d19115be347d2b85c864a17dd563104bf496b14a06
+SHA256(keysmith-linux-arm32.tar.gz)=
+b28670e2b3483ea9f9ba691e9f76f99df31b2678db33b69c888fb08b634de162
+SHA256(keysmith-linux-arm64.tar.gz)=
+ebe9cde3cf440ebbfb53dd10bf7f412cbff8b089551100ee0fa48f3ac9bd66c3
+SHA256(keysmith-windows-amd64.tar.gz)=
+1ef9b77ccaae980aad4a227fe1a817821245da491a90f0e6ad323426b49ae40a
+----
+と
+[source,bash]
+----
+SHA256(quill-arm_32)=
+ebe2506e4dc4422e7670094e8b2b1d854a3b3c317b25c1c88990853d3d85c064
+SHA256(quill-linux-x86_64)=
+18fc671ee8c96b367875b39470073d68db78d32d242d14d4682025ef2a5d9ad4
+SHA256(quill-macos-x86_64)=
+97c373ab871be377ac784faff089ca26d23c37725230fb36d78f17d7a73b0867
+SHA256(quill-windows-x86_64.exe)=
+2542244c9ad3a9baf54bc2227e8c71ea8a8fb9f7e6065cc7a848c7b1cdce906e
+----
+
+=== 開封とインストール ===
+
+keysmith 側では：
+[source,bash]
+----
+tar -f keysmith-*.tar* -x
+sudo install -d /usr/local/bin
+sudo install keysmith /usr/local/bin
+----
+ノートパソコンのパスワードを入力する画面が表示されます。
+パスワード自体は表示されませんので、入力して Enter キーを押すだけです。
+
+quill 側では：
+[source,bash]
+----
+mv quill-arm_32 quill
+sudo install quill /usr/local/bin
+----
+
+== keysmith で秘密鍵ファイルを作成する ==
+
+=== インストールをテストする ===
+
+エアギャップ・コンピューターで以下のように打ちます：
+[source,bash]
+----
+keysmith
+----
+こう見えるはずです：
+[source,bash]
+----
+usage: keysmith <command> [<args>]
+
+Available Commands:
+    account         Print your account identifier.
+    generate        Generate your mnemonic seed and write it to a file.
+    legacy-address  Print your legacy address.
+    principal       Print your principal identifier.
+    private-key     Derive your private key and write it to a file.
+    public-key      Print your public key.
+    shortlist       Print the available commands.
+    version         Print the version number.
+    x-private-key   Derive your extended private key and write it to a file.
+    x-public-key    Print your extended public key.
+----
+macOS を使用している場合、初めて `keysmith` を実行すると、システムで許可を得る必要があるかもしれません。
+
+Preferences > Security & Privacy > General
+
+=== ニーモニックフレーズ（通称、Seed ）を入力する ===
+
+自分の環境が安全であると確信が持てたら、次に `keysmith` で使用するシードを入力する準備が整います。セッションの間、シードフレーズを環境変数に保存します。これはコンピュータの電源を切ると、システムから削除されます。
+
+[source,bash]
+----
+read seed
+----
+シードフレーズを入力し、Return で終了します。
+
+もし入力中にシードフレーズを表示させたくない場合は、代わりにこのコマンドを使用します：
+[source,bash]
+----
+read -s seed
+----
+
+=== オプション：レガシーアドレスと残高の確認をする ===
+
+この時点ですでにレガシーアドレスと ICPT の残高を確認することができます。レガシーアドレスは、以前 Dfinity の Chrome 拡張機能で「DFN アドレス」と呼ばれていたものと一致します。このアドレスは Chrome 拡張機能を使っていた頃の記録です。
+
+[source,bash]
+----
+echo $seed | keysmith legacy-address -f -
+----
+出力は40文字の16進文字列です。以下のような文字列です：
+
+[source,bash]
+----
+2d89d96b10f7a9456a9154b2f5309ee70df5bce1
+----
+
+ICPT の残高は以下の方法で確認することができます：次のサイトにアクセスします。
+https://ic.rocks/principal/renrk-eyaaa-aaaaa-aaada-cai
+
+Canister interface と balance メソッドを探します。そこで、あなたの DFN アドレスをテキストフィールドに貼り付け、Query ボタンをクリックします。
+あなたの ICP 残高は、nat32 の下に表示されます。
+
+=== 秘密鍵を生成する( .pem file ) ===
+
+シードフレーズから秘密鍵を導き出します。
+[source,bash]
+----
+echo $seed | keysmith private-key -f -
+----
+上記で秘密鍵を含むファイル `identity.pem` を作成します。
+
+==== オプション：.pem ファイルを RAM にのみ保存する ====
+
+後でファイルシステムから identity.pem ファイルを消去する予定です。しかし、データがディスクに残り、消去したにもかかわらず、後で取り出される危険性が残ります。RAM ディスクを作成し .pem ファイルを RAM ディスクにのみ格納する方がより安全です。
+
+===== MacOsに RAM ディスクを作成する =====
+
+これらのコマンドを打ちます。
+[source,bash]
+----
+DISK=$(hdiutil attach -nomount ram://16384)
+diskutil erasevolume HFS+ RD $DISK
+cd /Volumes/RD
+----
+打つ前に
+[source,bash]
+----
+echo $seed | keysmith private-key -f -
+----
+
+===== Linux に RAM ディスクを作成する =====
+
+これらのコマンドを打ちます。
+[source,bash]
+----
+sudo mkdir /mnt/ramdisk
+sudo mount -t ramfs keysmith /mnt/ramdisk
+sudo mkdir /mnt/ramdisk/workspace
+sudo chown $USER /mnt/ramdisk/workspace
+cd /mnt/ramdisk/workspace
+----
+打つ前に
+[source,bash]
+----
+echo $seed | keysmith private-key -f -
+----
+
+===== Windows に RAM ディスクを作成する =====
+
+（Todo）
+
+== quill でクレームをサブミットする ==
+
+=== インストールをテストする ===
+
+エアギャップ・コンピューターで以下のように打ちます：
+
+[source,bash]
+----
+quill
+----
+以下のように見えるはずです：
+[source,bash]
+----
+quill 0.2.12
+
+Ledger & Governance ToolKit for cold wallets
+
+USAGE:
+    quill [OPTIONS] <SUBCOMMAND>
+
+OPTIONS:
+    -h, --help Print help information
+        --pem-file <PEM_FILE> Path to your PEM file (use "-" for STDIN)
+    -V, --version Print version information
+
+SUBCOMMANDS:
+    account-balance Queries a ledger account balance
+    claim-neurons   Claim seed neurons from the Genesis Token Canister
+    get-proposal-info
+    help            Print this message or the help of the given subcommand(s)
+    list-neurons    Signs the query for all neurons belonging to the signin principal
+    list-proposals
+    neuron-manage   Signs a neuron configuration change
+    neuron-stake    Signs topping up of a neuron (new or existing)
+    public-ids      Prints the principal id and the account id
+    send            Sends a signed message or a set of messages
+    transfer        Signs an ICP transfer transaction
+----
+macOS を使用している場合、初めて `quill` を実行するときは、システムで許可を得る必要があるかもしれません。
+
+Preferences > Security & Privacy > General
+
+=== クレームリクエストに署名する ===
+
+エアギャップ・コンピューターで以下のように打ちます：
+[source,bash]
+----
+quill --pem-file identity.pem claim-neurons >msg.json
+----
+
+=== IC にクレームをサブミットする ===
+
+==== オプション1：ネットワーク上のコンピュータで quill を使う ====
+
+出来上がったファイル `msg.json` をネットワーク上のコンピュータにコピーして戻します。ネットワーク上のコンピュータで、`msg.json` があるディレクトリに移動し以下のように打ちます：
+[source,bash]
+----
+quill send msg.json
+----
+これであなたの Neuron はクレームされるはずです。
+
+請求が成功したかどうかは、次の方法で再確認することができます。
+https://ic.rocks/genesis/2d89d96b10f7a9456a9154b2f5309ee70df5bce1 
+`2d89d96b10f7a9456a9154b2f5309ee70df5bce1` を自分の DFN アドレスに置き換えてください。
+"Status“ の下に  "Claimed“ と表示されているはずです。
+
+==== オプション2：QR スキャナーアプリを使用する ====
+
+* `qrencode` をイントールします。
+
+* `cat msg.json | gzip -c | base64 | qrencode -o msg.png` と打ちます。
+
+* イメージビューワの `msg.png` を開きます。
+
+* 携帯電話のブラウザでスキャナアプリを開きます：
+https://p5deo-6aaaa-aaaab-aaaxq-cai.raw.ic0.app
+
+* QR をスキャンしサブミットします。
+
+=== エアギャップ・コンピューターをクリーンアップする ===
+
+請求が成功した場合、エアギャップ・コンピュータの `.pem` ファイルを削除することを忘れないでください。
+
+[source,bash]
+----
+rm identity.pem
+----
+
+
+
+////
 = How-To: Claim neurons for seed participants
 :experimental:
 // Define unicode for Apple Command key.
@@ -407,3 +760,7 @@ If your claim was successful then do not forget to remove the
 ----
 rm identity.pem
 ----
+
+
+
+////
